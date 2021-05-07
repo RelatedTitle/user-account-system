@@ -1,5 +1,5 @@
 const config = require("./config.js");
-const db = require("./db.js");
+const db = require("./db/db.js");
 
 async function trustAction(userid, action, data) {
   return new Promise(function (resolve, reject) {

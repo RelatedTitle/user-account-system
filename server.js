@@ -37,18 +37,10 @@ const { verify } = require("hcaptcha");
 
 require("./auth/auth.js");
 
-// const initializePassport = require("./passport-config.js");
-
-// initializePassport(
-//   passport,
-//   (email) => db.getuser(null, null, email),
-//   (id) => db.getuser(id, null, null)
-// );
-
 const app = express();
 app.disable("x-powered-by");
 
-const db = require("./db.js");
+const db = require("./db/db.js");
 const email = require("./email/email.js");
 
 const jwt = require("jsonwebtoken");
@@ -59,12 +51,7 @@ const { use } = require("passport");
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
-
-// app.use(passport.initialize());
-// app.use(passport.session());
 app.use(methodOverride("_method"));
-
-app.set("view-engine", "ejs");
 
 app.listen(80);
 

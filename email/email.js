@@ -1,6 +1,6 @@
 const fs = require("fs");
 const config = require("../config.js");
-const db = require("../db.js");
+const db = require("../db/db.js");
 const jwt = require("jsonwebtoken");
 const { DefaultDeserializer } = require("v8");
 const { use } = require("passport");

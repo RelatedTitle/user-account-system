@@ -1,6 +1,6 @@
 const config = require("../config.js");
 const jwt = require("jsonwebtoken");
-const db = require("../db.js");
+const db = require("../db/db.js");
 
 async function generateEmailVerificationToken(userid, email) {
   // Expire previous tokens:

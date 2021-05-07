@@ -1,32 +1,47 @@
 const config = require("../config.js");
-const db = require("../db.js");
+const db = require("../db/db.js");
 const email = require("../email/email.js");
 const bcrypt = require("bcrypt");
 const trustscore = require("../trustscore.js");
 
+const { customAlphabet } = require("nanoid");
+const generateuserid = customAlphabet(
+  config.user.idalphabet,
+  config.user.idlength
+);
+
 async function registerUser(userEmail, userUsername, userPassword) {
   let emailinfo = await email.getemailinfo(userEmail);
-  return new Promise(function (resolve, reject) {
-    // if (!config.user.emailregex.test(userEmail)) {
-    //   res.status(400).json({
-    //     error: true,
-    //     message: "Invalid Email",
-    //   });
-    // }
+  let userid = generateuserid();
+  let currentDate = new Date();
 
-    // if (!config.user.usernameregex.test(userUsername)) {
-    //   res.status(400).json({
-    //     error: true,
-    //     message: "Invalid Username",
-    //   });
-    // }
+  return new Promise(function (resolve, reject) {
     // Gets email info:
     // Generates salt with defined salt rounds in config:
     bcrypt.genSalt(config.user.bcryptsaltrounds, function (err, salt) {
       // Hashes password:
       bcrypt.hash(userPassword, salt, function (err, hashedPassword) {
         //Stores user in DB:
-        db.createuser(userUsername, emailinfo.realemail, hashedPassword)
+        let newUser = new db.user({
+          userid: userid,
+          username: {
+            displayusername: userUsername,
+            realusername: userUsername.toLowerCase(),
+          },
+          email: {
+            email: emailinfo.realemail,
+            verified: false,
+          },
+          password: hashedPassword,
+          creationDate: currentDate,
+        });
+        newUser.emailhistory.push({
+          email: emailinfo.realemail,
+          date: currentDate,
+          verified: false,
+        });
+        newUser
+          .save()
           .then((registeredUser) => {
             if (config.user.captchaenabled == true) {
               trustscore.trustAction(
