@@ -3,3 +3,6 @@ node_modules
 config.js
 .vscode
 .dccache
+tests.js
+tester.js
+stresser.js
