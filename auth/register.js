@@ -15,6 +15,11 @@ async function registerUser(userEmail, userUsername, userPassword, oauthData) {
   let userid = generateuserid();
   let currentDate = new Date();
 
+  if (!userUsername) {
+    // If no username is provided, use userid as username
+    userUsername = userid.toString();
+  }
+
   return new Promise(function (resolve, reject) {
     // Gets email info:
     // Generates salt with defined salt rounds in config:
@@ -42,14 +47,18 @@ async function registerUser(userEmail, userUsername, userPassword, oauthData) {
           verified: false,
         });
         if (oauthData) {
-          newUser.email.verified = true;
           switch (oauthData.provider) {
             case "Google":
               newUser.oauth.googleoauthid = oauthData.data.id;
+              newUser.email.verified = true;
               break;
             case "GitHub":
               newUser.oauth.githuboauthid = oauthData.data.id;
+              newUser.email.verified = true;
               break;
+            case "Discord":
+              newUser.oauth.discordoauthid = oauthData.data.id;
+              newUser.email.verified = oauthData.data.verified;
             default:
               break;
           }
@@ -84,22 +93,21 @@ async function registerUser(userEmail, userUsername, userPassword, oauthData) {
             console.log(err);
             console.log("Failed to register user.");
             if (err.code == 11000) {
+              console.log(emailinfo.realemail);
               if (
-                Object.keys(err.keyValue) == "username.displayusername" ||
-                Object.keys(err.keyValue) == "username.realusername"
-              ) {
-                // Already existing username
-                console.log("Username " + userUsername + " already exists.");
-                reject("Username already exists");
-              } else if (
                 Object.keys(err.keyValue) == "email.email" ||
                 Object.keys(err.keyValue) == "emailhistory.email"
               ) {
                 // Already existing current or past email
-                console.log(
-                  "Email " + emailinfo.realemail + " already exists."
-                );
+                console.log("Email already exists");
                 reject("Email already exists");
+              } else if (
+                Object.keys(err.keyValue) == "username.displayusername" ||
+                Object.keys(err.keyValue) == "username.realusername"
+              ) {
+                // Already existing username
+                console.log("Username already exists");
+                reject("Username already exists");
               } else {
                 // Something else is not unique when it is supposed to be
                 console.log(err);

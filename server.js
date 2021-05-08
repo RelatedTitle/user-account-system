@@ -381,7 +381,27 @@ app.get(
   "/auth/github/callback",
   passport.authenticate("github", { session: false }),
   (req, res) => {
-    console.log(req.user);
+    issuejwt
+      .issueRefreshJWT(req.user.userid, req.user.email.email)
+      .then((tokens) => {
+        return res.json({
+          error: false,
+          accessToken: tokens.accessToken,
+          refreshToken: tokens.refreshToken,
+        });
+      });
+  }
+);
+
+app.get(
+  "/auth/discord",
+  passport.authenticate("discord", { scope: ["identify", "email"] })
+);
+
+app.get(
+  "/auth/discord/callback",
+  passport.authenticate("discord", { session: false }),
+  (req, res) => {
     issuejwt
       .issueRefreshJWT(req.user.userid, req.user.email.email)
       .then((tokens) => {

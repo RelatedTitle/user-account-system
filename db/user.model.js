@@ -74,6 +74,11 @@ const userSchema = new mongoose.Schema({
       unique: true,
       sparse: true,
     },
+    discordoauthid: {
+      type: String,
+      unique: true,
+      sparse: true,
+    },
   },
   password: String,
   creationDate: Date,
