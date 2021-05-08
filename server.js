@@ -208,7 +208,7 @@ app.post("/auth/resetPassword", async (req, res) => {
 
 app.post("/auth/verifyEmail", async (req, res) => {
   jwt.verify(
-    req.body.emailVerificationtToken,
+    req.body.emailVerificationToken,
     config.user.jwtemailverificationsecret,
     (err, verifiedToken) => {
       if (err) {

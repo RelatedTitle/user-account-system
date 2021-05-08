@@ -29,39 +29,39 @@ async function checkEmailVerificationToken(userid, email, token) {
         if (!emailVerificationToken) {
           reject("No such valid token");
         }
-        if (
-          emailVerificationToken.userid == userid &&
-          emailVerificationToken.email == email
-        ) {
-          if (emailVerificationToken.expired == true) {
-            reject("Token is expired");
-          } else {
-            db.emailVerificationToken
-              .updateOne({ token: token }, { $set: { expired: true } })
-              .then((emailVerificationToken) => {
-                db.user.findOne({ userid: userid }).then((user) => {
-                  user.email.verified = true;
-                  for (let i = 0; i < user.emailhistory.length; i++) {
-                    if (user.emailhistory[i].email == email) {
-                      user.emailhistory[i].verified = true;
-                    }
-                  }
-                  user
-                    .save()
-                    .then((user) => {
-                      resolve(user);
-                    })
-                    .catch((err) => {
-                      reject(err);
-                    });
-                });
-              })
-              .catch((err) => {
-                console.log("ERR: " + err);
-              });
-          }
+        if (emailVerificationToken.expired == true) {
+          reject("Token is expired");
         } else {
-          reject("Token does not match user");
+          db.emailVerificationToken
+            .updateOne({ token: token }, { $set: { expired: true } })
+            .then((emailVerificationToken) => {
+              db.user
+                .updateOne(
+                  { userid: userid },
+                  {
+                    $set: {
+                      "email.verified": true,
+                      "email.email": email,
+                    },
+                    $push: {
+                      emailhistory: {
+                        email: email,
+                        date: new Date(),
+                        verified: true,
+                      },
+                    },
+                  }
+                )
+                .then((user) => {
+                  resolve(user);
+                })
+                .catch((err) => {
+                  reject(err);
+                });
+            })
+            .catch((err) => {
+              console.log("ERR: " + err);
+            });
         }
       })
       .catch((err) => {
