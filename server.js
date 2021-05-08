@@ -371,6 +371,29 @@ app.get(
   }
 );
 
+app.get(
+  "/auth/github",
+  passport.authenticate("github", { scope: ["profile", "email", "user:email"] })
+  // https://stackoverflow.com/questions/35373995/github-user-email-is-null-despite-useremail-scope
+);
+
+app.get(
+  "/auth/github/callback",
+  passport.authenticate("github", { session: false }),
+  (req, res) => {
+    console.log(req.user);
+    issuejwt
+      .issueRefreshJWT(req.user.userid, req.user.email.email)
+      .then((tokens) => {
+        return res.json({
+          error: false,
+          accessToken: tokens.accessToken,
+          refreshToken: tokens.refreshToken,
+        });
+      });
+  }
+);
+
 const download = (url, path, callback) => {
   request.head(url, (err, res, body) => {
     request(url).pipe(fs.createWriteStream(path)).on("close", callback);

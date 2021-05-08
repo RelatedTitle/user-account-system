@@ -4,6 +4,7 @@ const db = require("../db/db.js");
 const jwt = require("jsonwebtoken");
 const { DefaultDeserializer } = require("v8");
 const { use } = require("passport");
+const mailer = require("nodemailer");
 
 // Popular Email Provider Domains
 const gmaildomains = ["gmail.com", "googlemail.com"];

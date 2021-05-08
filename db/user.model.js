@@ -64,7 +64,16 @@ const userSchema = new mongoose.Schema({
     },
   ],
   oauth: {
-    googleoauthid: String,
+    googleoauthid: {
+      type: String,
+      unique: true,
+      sparse: true,
+    },
+    githuboauthid: {
+      type: String,
+      unique: true,
+      sparse: true,
+    },
   },
   password: String,
   creationDate: Date,

@@ -43,8 +43,15 @@ async function registerUser(userEmail, userUsername, userPassword, oauthData) {
         });
         if (oauthData) {
           newUser.email.verified = true;
-          if (oauthData.provider == "Google") {
-            newUser.oauth.googleoauthid = oauthData.data.id;
+          switch (oauthData.provider) {
+            case "Google":
+              newUser.oauth.googleoauthid = oauthData.data.id;
+              break;
+            case "GitHub":
+              newUser.oauth.githuboauthid = oauthData.data.id;
+              break;
+            default:
+              break;
           }
           newUser.account_connections.push({
             provider: oauthData.provider,

@@ -15,6 +15,8 @@ mongoose.connect(mongodbserver, {
 
 const db = mongoose.connection;
 
+mongoose.set("useFindAndModify", false); // https://stackoverflow.com/questions/52572852/deprecationwarning-collection-findandmodify-is-deprecated-use-findoneandupdate
+
 db.on(
   "error",
   console.error.bind(

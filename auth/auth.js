@@ -7,6 +7,7 @@ const register = require("./register.js");
 
 const JWTStrategy = require("passport-jwt").Strategy;
 const GoogleStrategy = require("passport-google-oauth2").Strategy;
+const GitHubStrategy = require("passport-github").Strategy;
 const ExtractJWT = require("passport-jwt");
 
 // Login:
@@ -88,7 +89,7 @@ passport.use(
       passReqToCallback: true,
     },
     function (request, accessToken, refreshToken, profile, done) {
-      db.user.findOne({ oauth: { googleoauthid: profile.id } }).then((user) => {
+      db.user.findOne({ "oauth.googleoauthid": profile.id }).then((user) => {
         if (user) {
           // User found:
           return done(null, user);
@@ -128,6 +129,72 @@ passport.use(
               } else {
                 // Some other error
                 return done("Unknown Error", null);
+              }
+            });
+        }
+      });
+    }
+  )
+);
+
+// Github Auth:
+
+passport.use(
+  new GitHubStrategy(
+    {
+      clientID: config.user.githubclientid,
+      clientSecret: config.user.githubclientsecret,
+      callbackURL: config.fqdn + "/auth/github/callback",
+      passReqToCallback: true,
+    },
+    function (request, accessToken, refreshToken, profile, done) {
+      db.user.findOne({ "oauth.githuboauthid": profile.id }).then((user) => {
+        if (user) {
+          // User found:
+          return done(null, user);
+        } else {
+          // Register a new user (also automatically verifies the user's email):
+          register
+            .registerUser(profile.emails[0].value, profile.username, null, {
+              provider: "GitHub",
+              data: profile,
+            })
+            .then((newUser) => {
+              return done(null, newUser);
+            })
+            .catch((err) => {
+              if (err == "Email already exists") {
+                // If user account already exists, link it to their GitHub account (also automatically verifies the user's email, not emailhistory though):
+                db.user
+                  .findOneAndUpdate(
+                    { "email.email": profile.emails[0].value },
+                    {
+                      $set: {
+                        "oauth.githuboauthid": profile.id,
+                        "email.verified": true,
+                        "username.realusername": profile.username.toLowerCase(),
+                      },
+                      $push: {
+                        account_connections: {
+                          provider: "GitHub",
+                          data: profile,
+                        },
+                      },
+                    }
+                  )
+                  .then((updatedUser) => {
+                    // updateOne does not return the full updated document so we use need to use findOneAndUpdate
+                    return done(null, updatedUser);
+                  });
+              } else {
+                if (!profile.emails) {
+                  // User's email address(es) is(are) private or inaccessible for some other reason
+                  return done("Email address private or inaccessible", null);
+                } else {
+                  // Some other error
+                  console.log(err);
+                  return done("Unknown Error", null);
+                }
               }
             });
         }
