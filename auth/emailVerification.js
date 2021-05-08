@@ -116,6 +116,7 @@ async function checkEmailVerificationToken(userid, email, token) {
       });
   });
 }
+// Callback hell ;(
 
 module.exports = {
   generateEmailVerificationToken,
