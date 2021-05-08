@@ -41,11 +41,6 @@ async function registerUser(userEmail, userUsername, userPassword, oauthData) {
           creationDate: currentDate,
           oauth: {},
         });
-        newUser.emailhistory.push({
-          email: emailinfo.realemail,
-          date: currentDate,
-          verified: false,
-        });
         if (oauthData) {
           switch (oauthData.provider) {
             case "Google":
