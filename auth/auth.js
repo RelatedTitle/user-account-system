@@ -106,7 +106,7 @@ passport.use(
               if (err == "Email already exists") {
                 // If user account already exists, link it to their Google account (also automatically verifies the user's email, not emailhistory though):
                 db.user
-                  .updateOne(
+                  .findOneAndUpdate(
                     { "email.email": profile.email },
                     {
                       $set: {
@@ -121,8 +121,9 @@ passport.use(
                       },
                     }
                   )
-                  .then((newUser) => {
-                    return done(null, newUser);
+                  .then((updatedUser) => {
+                    // updateOne does not return the full updated document so we use need to use findOneAndUpdate
+                    return done(null, updatedUser);
                   });
               } else {
                 // Some other error
