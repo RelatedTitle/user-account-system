@@ -309,15 +309,21 @@ app.post("/auth/register", async (req, res) => {
         req.body.password
       )
       .then((registeredUser) => {
-        res.status(201).json({
-          error: false,
-          message: "User registered successfully",
-          user: {
-            userid: registeredUser.userid,
-            username: registeredUser.username.displayusername,
-            email: registeredUser.email.email,
-          },
-        });
+        issuejwt
+          .issueRefreshJWT(registeredUser.userid, registeredUser.email.email)
+          .then((tokens) => {
+            res.status(201).json({
+              error: false,
+              message: "User registered successfully",
+              user: {
+                userid: registeredUser.userid,
+                username: registeredUser.username.displayusername,
+                email: registeredUser.email.email,
+              },
+              accessToken: tokens.accessToken,
+              refreshToken: tokens.refreshToken,
+            });
+          });
       })
       .catch((error) => {
         switch (error) {
