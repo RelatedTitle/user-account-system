@@ -32,6 +32,7 @@ const methodOverride = require("method-override");
 const register = require("./auth/register.js");
 const passwordReset = require("./auth/passwordReset.js");
 const emailVerification = require("./auth/emailVerification.js");
+const issuejwt = require("./auth/issueJWT.js");
 
 const { verify } = require("hcaptcha");
 
@@ -76,31 +77,15 @@ app.post("/auth/login", async (req, res, next) => {
 
       req.login(user, { session: false }, async (err) => {
         if (err) return res.status(403).json({ error: true, message: "Error" });
-        body = {
-          _id: user.userid,
-          email: user.email.email,
-        };
-        accessToken = jwt.sign(
-          { user: body, type: "access" },
-          config.user.jwtauthsecret
-        );
-
-        refreshToken = new db.refreshToken({
-          userid: user.userid,
-          email: user.email.email,
-          token: jwt.sign(
-            { user: body, type: "refresh" },
-            config.user.jwtauthsecret
-          ),
-          expired: false,
-        });
-        refreshToken.save().then((refreshToken) => {
-          return res.json({
-            error: false,
-            accessToken: accessToken,
-            refreshToken: refreshToken.token,
+        issuejwt
+          .issueRefreshJWT(user.userid, user.email.email)
+          .then((tokens) => {
+            return res.json({
+              error: false,
+              accessToken: tokens.accessToken,
+              refreshToken: tokens.refreshToken,
+            });
           });
-        });
       });
     } catch (err) {
       return res.status(500).json({ error: true, message: "Error" });
@@ -138,17 +123,13 @@ app.post("/auth/refreshToken", async (req, res) => {
                   });
               } else {
                 // Issue new access token:
-                body = {
-                  _id: refreshToken.userid,
-                  email: refreshToken.email,
-                };
-                accessToken = jwt.sign(
-                  { user: body, type: "access" },
-                  config.user.jwtauthsecret
-                );
-                res
-                  .status(200)
-                  .json({ error: false, accessToken: accessToken });
+                issuejwt
+                  .issueAccessJWT(refreshToken.userid, refreshToken.email)
+                  .then((token) => {
+                    res
+                      .status(200)
+                      .json({ error: false, accessToken: token.accessToken });
+                  });
               }
             }
           );
@@ -372,31 +353,15 @@ app.get(
   "/auth/google/callback",
   passport.authenticate("google", { session: false }),
   (req, res) => {
-    body = {
-      _id: req.user.userid,
-      email: req.user.email.email,
-    };
-    accessToken = jwt.sign(
-      { user: body, type: "access" },
-      config.user.jwtauthsecret
-    );
-
-    refreshToken = new db.refreshToken({
-      userid: req.user.userid,
-      email: req.user.email.email,
-      token: jwt.sign(
-        { user: body, type: "refresh" },
-        config.user.jwtauthsecret
-      ),
-      expired: false,
-    });
-    refreshToken.save().then((refreshToken) => {
-      return res.json({
-        error: false,
-        accessToken: accessToken,
-        refreshToken: refreshToken.token,
+    issuejwt
+      .issueRefreshJWT(req.user.userid, req.user.email.email)
+      .then((tokens) => {
+        return res.json({
+          error: false,
+          accessToken: tokens.accessToken,
+          refreshToken: tokens.refreshToken,
+        });
       });
-    });
   }
 );
 
