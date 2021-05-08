@@ -172,7 +172,6 @@ passport.use(
                       $set: {
                         "oauth.githuboauthid": profile.id,
                         "email.verified": true,
-                        "username.realusername": profile.username.toLowerCase(),
                       },
                       $push: {
                         account_connections: {
