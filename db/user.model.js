@@ -10,10 +10,12 @@ const userSchema = new mongoose.Schema({
     displayusername: {
       type: String,
       unique: true,
+      sparse: true,
     },
     realusername: {
       type: String,
       unique: true,
+      sparse: true,
     },
   },
   usernamehistory: [
@@ -36,6 +38,7 @@ const userSchema = new mongoose.Schema({
     email: {
       type: String,
       unique: true,
+      sparse: true,
     },
     emailtype: Number,
     provider: String,
@@ -46,6 +49,7 @@ const userSchema = new mongoose.Schema({
       email: {
         type: String,
         unique: true,
+        sparse: true,
       },
       date: Date,
       emailtype: Number,
@@ -53,6 +57,15 @@ const userSchema = new mongoose.Schema({
       verified: Boolean,
     },
   ],
+  account_connections: [
+    {
+      provider: String,
+      data: Object,
+    },
+  ],
+  oauth: {
+    googleoauthid: String,
+  },
   password: String,
   creationDate: Date,
 });

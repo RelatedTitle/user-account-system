@@ -3,10 +3,13 @@ const passport = require("passport");
 const localStrategy = require("passport-local").Strategy;
 const bcrypt = require("bcrypt");
 const config = require("../config.js");
+const register = require("./register.js");
 
 const JWTStrategy = require("passport-jwt").Strategy;
+const GoogleStrategy = require("passport-google-oauth2").Strategy;
 const ExtractJWT = require("passport-jwt");
 
+// Login:
 passport.use(
   "login",
   new localStrategy(
@@ -41,6 +44,7 @@ passport.use(
   )
 );
 
+// JWT Token Verification:
 passport.use(
   new JWTStrategy(
     {
@@ -70,6 +74,63 @@ passport.use(
       } catch (err) {
         done(error);
       }
+    }
+  )
+);
+
+// Google Auth:
+passport.use(
+  new GoogleStrategy(
+    {
+      clientID: config.user.googleclientid,
+      clientSecret: config.user.googleclientsecret,
+      callbackURL: config.fqdn + "/auth/google/callback",
+      passReqToCallback: true,
+    },
+    function (request, accessToken, refreshToken, profile, done) {
+      db.user.findOne({ oauth: { googleoauthid: profile.id } }).then((user) => {
+        if (user) {
+          // User found:
+          return done(null, user);
+        } else {
+          // Register a new user (also automatically verifies the user's email):
+          register
+            .registerUser(profile.email, null, null, {
+              provider: "Google",
+              data: profile,
+            })
+            .then((newUser) => {
+              return done(null, newUser);
+            })
+            .catch((err) => {
+              if (err == "Email already exists") {
+                // If user account already exists, link it to their Google account (also automatically verifies the user's email, not emailhistory though):
+                db.user
+                  .updateOne(
+                    { "email.email": profile.email },
+                    {
+                      $set: {
+                        "oauth.googleoauthid": profile.id,
+                        "email.verified": true,
+                      },
+                      $push: {
+                        account_connections: {
+                          provider: "Google",
+                          data: profile,
+                        },
+                      },
+                    }
+                  )
+                  .then((newUser) => {
+                    return done(null, newUser);
+                  });
+              } else {
+                // Some other error
+                return done("Unknown Error", null);
+              }
+            });
+        }
+      });
     }
   )
 );

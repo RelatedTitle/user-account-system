@@ -10,7 +10,7 @@ const generateuserid = customAlphabet(
   config.user.idlength
 );
 
-async function registerUser(userEmail, userUsername, userPassword) {
+async function registerUser(userEmail, userUsername, userPassword, oauthData) {
   let emailinfo = await email.getemailinfo(userEmail);
   let userid = generateuserid();
   let currentDate = new Date();
@@ -26,7 +26,7 @@ async function registerUser(userEmail, userUsername, userPassword) {
           userid: userid,
           username: {
             displayusername: userUsername,
-            realusername: userUsername.toLowerCase(),
+            realusername: userUsername?.toLowerCase(),
           },
           email: {
             email: emailinfo.realemail,
@@ -34,12 +34,23 @@ async function registerUser(userEmail, userUsername, userPassword) {
           },
           password: hashedPassword,
           creationDate: currentDate,
+          oauth: {},
         });
         newUser.emailhistory.push({
           email: emailinfo.realemail,
           date: currentDate,
           verified: false,
         });
+        if (oauthData) {
+          newUser.email.verified = true;
+          if (oauthData.provider == "Google") {
+            newUser.oauth.googleoauthid = oauthData.data.id;
+          }
+          newUser.account_connections.push({
+            provider: oauthData.provider,
+            data: oauthData.data,
+          });
+        }
         newUser
           .save()
           .then((registeredUser) => {

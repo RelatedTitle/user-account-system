@@ -49,6 +49,7 @@ const { getemailinfo } = require("./email/email.js");
 const { response } = require("express");
 const { use } = require("passport");
 
+app.use(passport.initialize());
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(methodOverride("_method"));
@@ -361,6 +362,43 @@ app.post("/auth/register", async (req, res) => {
       });
   }
 });
+
+app.get(
+  "/auth/google",
+  passport.authenticate("google", { scope: ["profile", "email"] })
+);
+
+app.get(
+  "/auth/google/callback",
+  passport.authenticate("google", { session: false }),
+  (req, res) => {
+    body = {
+      _id: req.user.userid,
+      email: req.user.email.email,
+    };
+    accessToken = jwt.sign(
+      { user: body, type: "access" },
+      config.user.jwtauthsecret
+    );
+
+    refreshToken = new db.refreshToken({
+      userid: req.user.userid,
+      email: req.user.email.email,
+      token: jwt.sign(
+        { user: body, type: "refresh" },
+        config.user.jwtauthsecret
+      ),
+      expired: false,
+    });
+    refreshToken.save().then((refreshToken) => {
+      return res.json({
+        error: false,
+        accessToken: accessToken,
+        refreshToken: refreshToken.token,
+      });
+    });
+  }
+);
 
 const download = (url, path, callback) => {
   request.head(url, (err, res, body) => {
