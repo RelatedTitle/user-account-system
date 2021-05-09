@@ -32,6 +32,7 @@ const methodOverride = require("method-override");
 const register = require("./auth/register.js");
 const passwordReset = require("./auth/passwordReset.js");
 const emailVerification = require("./auth/emailVerification.js");
+const passwordResetConfirmationEmail = require("./email/templates/passwordResetConfirmation.js");
 const issuejwt = require("./auth/issueJWT.js");
 
 const { verify } = require("hcaptcha");
@@ -425,11 +426,78 @@ app.post(
         message: "Invalid email",
       });
     }
-    emailVerification.generateEmailVerificationToken(
-      req.user.userid,
-      req.body.email
-    );
-    res.json({ Cheese: true });
+    emailVerification
+      .generateEmailVerificationToken(req.user._id, req.body.email)
+      .then((emailVerificationToken) => {
+        res.status(200).json({
+          error: false,
+          message: "Email verification sent successfully",
+        });
+      })
+      .catch((err) => {
+        res.status(400).json({ error: true, message: err });
+      });
+  }
+);
+
+app.post(
+  "/user/changePassword",
+  passport.authenticate("jwt", { session: false }),
+  (req, res, next) => {
+    if (req.body.oldPassword == req.body.newPassword) {
+      return res.status(403).json({
+        error: true,
+        message: "Password cannot be the same",
+      });
+    }
+    if (!config.user.passwordregex.test(req.body.newPassword)) {
+      return res.status(403).json({
+        error: true,
+        message: "Invalid Password",
+      });
+    }
+    db.user.findOne({ userid: req.user._id }).then((user) => {
+      bcrypt.compare(req.body.oldPassword, user.password).then((results) => {
+        if (results) {
+          // Generates Salt:
+          bcrypt.genSalt(config.user.bcryptsaltrounds, function (err, salt) {
+            // Hashes password:
+            bcrypt.hash(
+              req.body.newPassword,
+              salt,
+              function (err, hashedPassword) {
+                db.user
+                  .updateOne(
+                    { userid: req.user._id },
+                    { $set: { password: hashedPassword } }
+                  )
+                  .then((newUser) => {
+                    passwordResetConfirmationEmail
+                      .sendPasswordChangeConfirmationEmail(user.email)
+                      .then((emailInfo) => {
+                        return res.status(200).json({
+                          error: false,
+                          message: "Password changed successfully",
+                        });
+                      });
+                  })
+                  .catch((err) => {
+                    return res.status(500).json({
+                      error: true,
+                      message: "Unknown Error",
+                    });
+                  });
+              }
+            );
+          });
+        } else {
+          return res.status(403).json({
+            error: true,
+            message: "Incorrect password",
+          });
+        }
+      });
+    });
   }
 );
 
