@@ -3,6 +3,9 @@ const db = require("../db/db.js");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 
+const passwordResetEmail = require("../email/templates/passwordReset.js");
+const passwordResetConfirmationEmail = require("../email/templates/passwordResetConfirmation.js");
+
 async function generatePasswordResetToken(email) {
   userEmail = email.toLowerCase();
   return new Promise(function (resolve, reject) {
@@ -29,7 +32,16 @@ async function generatePasswordResetToken(email) {
             passwordResetToken
               .save()
               .then((currentPasswordResetToken) => {
-                resolve(currentPasswordResetToken);
+                passwordResetEmail
+                  .sendPasswordResetEmail(
+                    userEmail,
+                    config.fqdn +
+                      "/auth/resetPassword/" +
+                      currentPasswordResetToken.token
+                  )
+                  .then((emailInfo) => {
+                    resolve(currentPasswordResetToken);
+                  });
               })
               .catch((err) => {
                 reject("Error saving password reset token");
@@ -83,7 +95,13 @@ async function checkPasswordResetToken(email, password, token) {
                                   user
                                     .save()
                                     .then((user) => {
-                                      resolve(user);
+                                      passwordResetConfirmationEmail
+                                        .sendPasswordChangeConfirmationEmail(
+                                          user.email.email
+                                        )
+                                        .then((emailInfo) => {
+                                          resolve(user);
+                                        });
                                     })
                                     .catch((err) => {
                                       reject("Password hashing error");

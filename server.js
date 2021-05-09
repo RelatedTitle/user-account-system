@@ -206,9 +206,9 @@ app.post("/auth/resetPassword", async (req, res) => {
   );
 });
 
-app.post("/auth/verifyEmail", async (req, res) => {
+app.post("/auth/verifyEmail/:emailVerificationToken?", async (req, res) => {
   jwt.verify(
-    req.body.emailVerificationToken,
+    req.params["emailVerificationToken"] || req.body.emailVerificationToken,
     config.user.jwtemailverificationsecret,
     (err, verifiedToken) => {
       if (err) {
@@ -221,7 +221,8 @@ app.post("/auth/verifyEmail", async (req, res) => {
           .checkEmailVerificationToken(
             verifiedToken.userid,
             verifiedToken.email,
-            req.body.emailVerificationToken
+            req.params["emailVerificationToken"] ||
+              req.body.emailVerificationToken
           )
           .then((user) => {
             return res.status(200).json({
@@ -411,6 +412,24 @@ app.get(
           refreshToken: tokens.refreshToken,
         });
       });
+  }
+);
+
+app.post(
+  "/user/changeEmail",
+  passport.authenticate("jwt", { session: false }),
+  (req, res, next) => {
+    if (!config.user.emailregex.test(req.body.email.toLowerCase())) {
+      return res.status(400).json({
+        error: true,
+        message: "Invalid email",
+      });
+    }
+    emailVerification.generateEmailVerificationToken(
+      req.user.userid,
+      req.body.email
+    );
+    res.json({ Cheese: true });
   }
 );
 

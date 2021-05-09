@@ -4,6 +4,8 @@ const email = require("../email/email.js");
 const bcrypt = require("bcrypt");
 const trustscore = require("../trustscore.js");
 
+const emailVerification = require("./emailVerification.js");
+
 const { customAlphabet } = require("nanoid");
 const generateuserid = customAlphabet(
   config.user.idalphabet,
@@ -73,16 +75,38 @@ async function registerUser(userEmail, userUsername, userPassword, oauthData) {
               );
             }
             // Created user successfully
-            console.log(
-              "Created user " +
-                registeredUser.userid +
-                ", username " +
-                registeredUser.username.displayusername +
-                " email " +
-                registeredUser.email.email +
-                "."
-            );
-            resolve(registeredUser);
+
+            // Send email verification token (if not verified already):
+            if (registeredUser.email.verified == false) {
+              emailVerification
+                .generateEmailVerificationToken(
+                  registeredUser.userid,
+                  registeredUser.email.email
+                )
+                .then((emailVerificationToken) => {
+                  console.log(
+                    "Created user " +
+                      registeredUser.userid +
+                      ", username " +
+                      registeredUser.username.displayusername +
+                      " email " +
+                      registeredUser.email.email +
+                      "."
+                  );
+                  resolve(registeredUser);
+                });
+            } else {
+              console.log(
+                "Created user " +
+                  registeredUser.userid +
+                  ", username " +
+                  registeredUser.username.displayusername +
+                  " email " +
+                  registeredUser.email.email +
+                  "."
+              );
+              resolve(registeredUser);
+            }
           })
           .catch((err) => {
             console.log(err);

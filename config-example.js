@@ -37,6 +37,9 @@ config.email.smtp = {};
 
 config.email.smtp.hostname = "";
 config.email.smtp.port = "";
+config.email.smtp.secure = "";
+
+config.email.from = '"[Cheese]" <cheese@example.com>';
 
 config.email.smtp.auth = {};
 

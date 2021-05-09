@@ -1,24 +1,39 @@
 const config = require("../config.js");
 const jwt = require("jsonwebtoken");
 const db = require("../db/db.js");
+const emailVerificationEmail = require("../email/templates/emailVerification.js");
 
 async function generateEmailVerificationToken(userid, email) {
-  // Expire previous tokens:
-  await db.emailVerificationToken.updateMany(
-    { userid: userid, expired: false },
-    { $set: { expired: true } }
-  );
-  token = jwt.sign(
-    { userid: userid, email: email, type: "emailverification" },
-    config.user.jwtemailverificationsecret
-  );
-  emailVerificationToken = new db.emailVerificationToken({
-    userid: userid,
-    email: email,
-    token: token,
-    expired: false,
+  return new Promise(function (resolve, reject) {
+    // Expire previous tokens:
+    db.emailVerificationToken
+      .updateMany(
+        { userid: userid, expired: false },
+        { $set: { expired: true } }
+      )
+      .then((expiredTokens) => {
+        token = jwt.sign(
+          { userid: userid, email: email, type: "emailverification" },
+          config.user.jwtemailverificationsecret
+        );
+        emailVerificationToken = new db.emailVerificationToken({
+          userid: userid,
+          email: email,
+          token: token,
+          expired: false,
+        });
+        emailVerificationToken.save().then((newEmailVerificationToken) => {
+          emailVerificationEmail
+            .sendEmailVerificationEmail(
+              email,
+              config.fqdn + "/auth/verifyEmail/" + token // Not the real URL for now, when there is a frontend, this will point to that. The frontend will then send a request to the endpoint with the token.
+            )
+            .then((emailInfo) => {
+              resolve(emailInfo);
+            });
+        });
+      });
   });
-  return await emailVerificationToken.save();
 }
 
 async function checkEmailVerificationToken(userid, email, token) {
