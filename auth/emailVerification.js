@@ -1,6 +1,7 @@
 const config = require("../config.js");
 const jwt = require("jsonwebtoken");
 const db = require("../db/db.js");
+const email = require("../email/email.js");
 const emailVerificationEmail = require("../email/templates/emailVerification.js");
 
 async function generateEmailVerificationToken(userid, email) {
@@ -37,6 +38,7 @@ async function generateEmailVerificationToken(userid, email) {
 }
 
 async function checkEmailVerificationToken(userid, email, token) {
+  emailinfo = await email.getemailinfo(email);
   return new Promise(function (resolve, reject) {
     db.emailVerificationToken
       .findOne({ token: token })
@@ -50,6 +52,7 @@ async function checkEmailVerificationToken(userid, email, token) {
           db.emailVerificationToken
             .updateOne({ token: token }, { $set: { expired: true } })
             .then((emailVerificationToken) => {
+              email = emailinfo.realemail;
               db.user
                 .updateOne(
                   { userid: userid },
