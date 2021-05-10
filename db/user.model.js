@@ -79,7 +79,7 @@ const userSchema = new mongoose.Schema({
       unique: true,
       sparse: true,
     },
-    twitteroauthid: {
+    facebookoauthid: {
       type: String,
       unique: true,
       sparse: true,

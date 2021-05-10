@@ -416,6 +416,27 @@ app.get(
   }
 );
 
+app.get(
+  "/auth/facebook",
+  passport.authenticate("facebook", { scope: ["public_profile", "email"] })
+);
+
+app.get(
+  "/auth/facebook/callback",
+  passport.authenticate("facebook", { session: false }),
+  (req, res) => {
+    issuejwt
+      .issueRefreshJWT(req.user.userid, req.user.email.email)
+      .then((tokens) => {
+        return res.json({
+          error: false,
+          accessToken: tokens.accessToken,
+          refreshToken: tokens.refreshToken,
+        });
+      });
+  }
+);
+
 app.post(
   "/user/changeEmail",
   passport.authenticate("jwt", { session: false }),
