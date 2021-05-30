@@ -15,7 +15,7 @@ async function sendPasswordChangeConfirmationEmail(to) {
   return await transporter.sendMail({
     from: config.email.from,
     to: to,
-    subject: "[RelatedTechNetwork] Password Change Confirmation",
+    subject: `[${config.servicename}] Password Change Confirmation`,
     text: `This email is to let you know that your account's password has been changed.
 
     If you did not change your password, please contact support immediately.

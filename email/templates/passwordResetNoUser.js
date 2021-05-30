@@ -15,9 +15,9 @@ async function sendPasswordResetEmailNoUser(to) {
   return await transporter.sendMail({
     from: config.email.from,
     to: to,
-    subject: "[RelatedTechNetwork] Password Reset",
+    subject: `[${config.servicename}] Password Reset`,
     text: `Someone (hopefully you) has requested a password request for this email address. 
-    However, this email address does not match any account in our records. If you requested this password reset, please make sure you have a RelatedTechNetwork account and are using the correct email address.
+    However, this email address does not match any account in our records. If you requested this password reset, please make sure you have a ${config.servicename} account and are using the correct email address.
 
         (If you didn't request a password reset, you can safely ignore this email)
         `,

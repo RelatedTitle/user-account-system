@@ -15,8 +15,8 @@ async function sendEmailVerificationEmail(to, emailVerificationURL) {
   return await transporter.sendMail({
     from: config.email.from,
     to: to,
-    subject: "[RelatedTechNetwork] Email Verification",
-    text: `Please click the following link to verify your RelatedTechNetwork account.
+    subject: `[${config.servicename}] Email Verification`,
+    text: `Please click the following link to verify your ${config.servicename} account.
         
         ${emailVerificationURL}
         `,
