@@ -4,6 +4,7 @@ const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 
 const passwordResetEmail = require("../email/templates/passwordReset.js");
+const passwordResetEmailNoUser = require("../email/templates/passwordResetNoUser.js");
 const passwordResetConfirmationEmail = require("../email/templates/passwordResetConfirmation.js");
 
 async function generatePasswordResetToken(email) {
@@ -11,7 +12,11 @@ async function generatePasswordResetToken(email) {
   return new Promise(function (resolve, reject) {
     db.user.findOne({ "email.email": userEmail }).then((user) => {
       if (!user) {
-        reject("No such user");
+        passwordResetEmailNoUser
+          .sendPasswordResetEmailNoUser(userEmail)
+          .then((emailInfo) => {
+            reject("No such user");
+          });
       } else {
         // Expire previous tokens:
         db.passwordResetToken

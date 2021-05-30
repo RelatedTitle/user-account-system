@@ -201,7 +201,7 @@ passport.use(
                   )
                   .then((updatedUser) => {
                     if (!updatedUser) {
-                      // Existing username belonged to another account
+                      // Username belonged to another account
                       register
                         .registerUser(profile.emails[0].value, null, null, {
                           provider: "GitHub",
@@ -288,7 +288,7 @@ passport.use(
                     )
                     .then((updatedUser) => {
                       if (!updatedUser) {
-                        // Existing username belonged to another account
+                        // Username belonged to another account
                         register
                           .registerUser(profile.email, null, null, {
                             provider: "Discord",
@@ -372,7 +372,7 @@ passport.use(
                   )
                   .then((updatedUser) => {
                     if (!updatedUser) {
-                      // Existing username belonged to another account
+                      // Username belonged to another account
                       register
                         .registerUser(profile.emails[0].value, null, null, {
                           provider: "Facebook",
