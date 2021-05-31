@@ -1,10 +1,10 @@
 const mongoose = require("mongoose");
 const config = require("../config.js");
 
-const emailVerificationTokenModel = require("./emailVerificationToken.model.js");
-const passwordResetTokenModel = require("./passwordResetToken.model.js");
-const refreshTokenModel = require("./refreshToken.model.js");
-const userModel = require("./user.model.js");
+const emailVerificationTokenModel = require("./models/emailVerificationToken.model.js");
+const passwordResetTokenModel = require("./models/passwordResetToken.model.js");
+const refreshTokenModel = require("./models/refreshToken.model.js");
+const userModel = require("./models/user.model.js");
 
 const mongodbserver = config.db.connectionstring;
 mongoose.connect(mongodbserver, {
