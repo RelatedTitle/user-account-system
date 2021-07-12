@@ -1,6 +1,8 @@
 # User Account System
 
-## [API Docs](https://github.com/RelatedTitle/user-account-system/wiki/API-Docs)
+### [Setup](https://github.com/RelatedTitle/user-account-system/wiki/Setup)
+### [API Docs](https://github.com/RelatedTitle/user-account-system/wiki/API-Docs)
+### [Config](https://github.com/RelatedTitle/user-account-system/wiki/Config)
 
 This project was created mainly just for fun and for personal use. 
 
