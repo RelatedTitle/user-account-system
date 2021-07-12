@@ -26,14 +26,13 @@ const fs = require("fs");
 const express = require("express");
 const bcrypt = require("bcrypt");
 const passport = require("passport");
-const flash = require("express-flash");
-const session = require("express-session");
 const methodOverride = require("method-override");
 const register = require("./auth/register.js");
 const passwordReset = require("./auth/passwordReset.js");
 const emailVerification = require("./auth/emailVerification.js");
 const passwordResetConfirmationEmail = require("./email/templates/passwordResetConfirmation.js");
 const issuejwt = require("./auth/issueJWT.js");
+const rateLimit = require("express-rate-limit");
 
 const { verify } = require("hcaptcha");
 
@@ -51,6 +50,10 @@ const { getemailinfo } = require("./email/email.js");
 const { response } = require("express");
 const { use } = require("passport");
 
+if (config.usingproxy) {
+  app.set("trust proxy", 1);
+}
+
 app.use(passport.initialize());
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
@@ -66,6 +69,28 @@ app.get(
     res.json({ Cheese: true });
   }
 );
+
+// RATE LIMITING:
+
+if (config.authratelimit.enabled) {
+  app.use(
+    "/auth/",
+    rateLimit({
+      windowMs: config.authratelimit.window,
+      max: config.authratelimit.maxrequests,
+    })
+  );
+}
+
+if (config.userratelimit.enabled) {
+  app.use(
+    "/user/",
+    rateLimit({
+      windowMs: config.userratelimit.window,
+      max: config.userratelimit.maxrequests,
+    })
+  );
+}
 
 app.post("/auth/login", async (req, res, next) => {
   passport.authenticate("login", async (err, user, info) => {
