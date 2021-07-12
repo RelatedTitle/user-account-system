@@ -37,8 +37,8 @@ async function generateEmailVerificationToken(userid, email) {
   });
 }
 
-async function checkEmailVerificationToken(userid, email, token) {
-  emailinfo = await email.getemailinfo(email);
+async function checkEmailVerificationToken(userid, useremail, token) {
+  emailinfo = await email.getemailinfo(useremail);
   return new Promise(function (resolve, reject) {
     db.emailVerificationToken
       .findOne({ token: token })
@@ -52,18 +52,18 @@ async function checkEmailVerificationToken(userid, email, token) {
           db.emailVerificationToken
             .updateOne({ token: token }, { $set: { expired: true } })
             .then((emailVerificationToken) => {
-              email = emailinfo.realemail;
+              useremail = emailinfo.realemail;
               db.user
                 .updateOne(
                   { userid: userid },
                   {
                     $set: {
                       "email.verified": true,
-                      "email.email": email,
+                      "email.email": useremail,
                     },
                     $push: {
                       emailhistory: {
-                        email: email,
+                        email: useremail,
                         date: new Date(),
                         verified: true,
                       },
@@ -86,7 +86,7 @@ async function checkEmailVerificationToken(userid, email, token) {
                         // If it is not verified, remove email from the unverified account and add it to the verified one.
                         db.user
                           .updateOne(
-                            { "email.email": email },
+                            { "email.email": useremail },
                             {
                               $set: { "email.email": undefined },
                               $unset: { emailhistory: [] },
@@ -99,11 +99,11 @@ async function checkEmailVerificationToken(userid, email, token) {
                                 {
                                   $set: {
                                     "email.verified": true,
-                                    "email.email": email,
+                                    "email.email": useremail,
                                   },
                                   $push: {
                                     emailhistory: {
-                                      email: email,
+                                      email: useremail,
                                       date: new Date(),
                                       verified: true,
                                     },
