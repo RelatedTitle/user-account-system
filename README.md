@@ -1,4 +1,7 @@
 # User Account System
+
+## [API Docs](https://github.com/RelatedTitle/user-account-system/wiki/API-Docs)
+
 This project was created mainly just for fun and for personal use. 
 
 The purpose of this project is to make implementing auth in my future projects easier. Please note that this is my first user auth project, so there may be some security vulnerabilities. Passwords are hashed with [bcrypt](https://github.com/kelektiv/node.bcrypt.js) and [JWT](https://jwt.io/)s are used as session tokens. I wouldn't recommend using this in any production environment without auditing it first.
