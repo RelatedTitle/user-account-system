@@ -30,4 +30,4 @@ The purpose of this project is to make implementing auth in my future projects e
 * Full **password reset** & **email verification** functionality.
 * Ability for users to change their email and password.
 * Adding new authenticated routes is easy.
-* ~2FA Support~ (Coming soon)
+* 2FA Support
