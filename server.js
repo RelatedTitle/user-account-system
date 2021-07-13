@@ -103,6 +103,20 @@ app.post("/auth/login", async (req, res, next) => {
         return res.status(403).json({ error: true, message: info.message });
       }
 
+      if (user["2FA"].active) {
+        if (!req.body.totpCode) {
+          return res.status(403).json({
+            error: true,
+            message: "2FA is active but no code was provided",
+          });
+        }
+        if (!otp.authenticator.check(req.body.totpCode, user["2FA"].secret)) {
+          return res
+            .status(403)
+            .json({ error: true, message: "Incorrect TOTP code" });
+        }
+      }
+
       req.login(user, { session: false }, async (err) => {
         if (err) return res.status(403).json({ error: true, message: "Error" });
         issuejwt
@@ -613,7 +627,7 @@ app.post(
       } else {
         return res.status(403).json({
           error: false,
-          message: "Invalid TOTP code",
+          message: "Incorrect TOTP code",
         });
       }
     });
