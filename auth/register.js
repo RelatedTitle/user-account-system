@@ -56,6 +56,7 @@ async function registerUser(userEmail, userUsername, userPassword, oauthData) {
             case "Discord":
               newUser.oauth.discordoauthid = oauthData.data.id;
               newUser.email.verified = oauthData.data.verified;
+              break;
             case "Facebook":
               newUser.oauth.facebookoauthid = oauthData.data.id;
               newUser.email.verified = true;
