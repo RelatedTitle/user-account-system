@@ -15,7 +15,7 @@ async function generatePasswordResetToken(email) {
         passwordResetEmailNoUser
           .sendPasswordResetEmailNoUser(userEmail)
           .then((emailInfo) => {
-            reject("No such user");
+            return reject("No such user");
           });
       } else {
         // Expire previous tokens:
@@ -49,11 +49,11 @@ async function generatePasswordResetToken(email) {
                   });
               })
               .catch((err) => {
-                reject("Error saving password reset token");
+                return reject("Error saving password reset token");
               });
           })
           .catch((err) => {
-            reject("Error expiring previous tokens");
+            return reject("Error expiring previous tokens");
           });
       }
     });
@@ -66,11 +66,11 @@ async function checkPasswordResetToken(email, password, token) {
       .findOne({ token: token })
       .then((passwordResetToken) => {
         if (!passwordResetToken) {
-          reject("No such valid token");
+          return reject("No such valid token");
         }
         if (passwordResetToken.email == email) {
           if (passwordResetToken.expired == true) {
-            reject("Token is expired");
+            return reject("Token is expired");
           } else {
             db.user
               .findOne({ "email.email": email })
@@ -105,11 +105,11 @@ async function checkPasswordResetToken(email, password, token) {
                                           user.email.email
                                         )
                                         .then((emailInfo) => {
-                                          resolve(user);
+                                          return resolve(user);
                                         });
                                     })
                                     .catch((err) => {
-                                      reject("Password hashing error");
+                                      return reject("Password hashing error");
                                     });
                                 }
                               );
@@ -124,16 +124,16 @@ async function checkPasswordResetToken(email, password, token) {
                 }
               })
               .catch((err) => {
-                reject("Password error");
+                return reject("Password error");
               });
           }
         } else {
-          reject("Token does not match user");
+          return reject("Token does not match user");
         }
       })
       .catch((err) => {
         console.log(err);
-        reject("Unknown Error");
+        return reject("Unknown Error");
       });
   });
 }

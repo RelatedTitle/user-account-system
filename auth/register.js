@@ -60,6 +60,7 @@ async function registerUser(userEmail, userUsername, userPassword, oauthData) {
             case "Facebook":
               newUser.oauth.facebookoauthid = oauthData.data.id;
               newUser.email.verified = true;
+              break;
             default:
               break;
           }

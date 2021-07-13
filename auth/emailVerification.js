@@ -30,7 +30,7 @@ async function generateEmailVerificationToken(userid, email) {
               config.fqdn + "/auth/verifyEmail/" + token // Not the real URL for now, when there is a frontend, this will point to that. The frontend will then send a request to the endpoint with the token.
             )
             .then((emailInfo) => {
-              resolve(emailInfo);
+              return resolve(emailInfo);
             });
         });
       });
@@ -44,10 +44,10 @@ async function checkEmailVerificationToken(userid, useremail, token) {
       .findOne({ token: token })
       .then((emailVerificationToken) => {
         if (!emailVerificationToken) {
-          reject("No such valid token");
+          return reject("No such valid token");
         }
         if (emailVerificationToken.expired == true) {
-          reject("Token is expired");
+          return reject("Token is expired");
         } else {
           db.emailVerificationToken
             .updateOne({ token: token }, { $set: { expired: true } })
@@ -71,7 +71,7 @@ async function checkEmailVerificationToken(userid, useremail, token) {
                   }
                 )
                 .then((user) => {
-                  resolve(user);
+                  return resolve(user);
                 })
                 .catch((err) => {
                   if (err.code == 11000) {
@@ -79,7 +79,7 @@ async function checkEmailVerificationToken(userid, useremail, token) {
                     db.user.findOne({ "email.email": email }).then((user) => {
                       // Check if that account's email is verified
                       if (user.email.verified == true) {
-                        reject(
+                        return reject(
                           "Email address already in use by another account"
                         );
                       } else {
@@ -111,7 +111,7 @@ async function checkEmailVerificationToken(userid, useremail, token) {
                                 }
                               )
                               .then((user) => {
-                                resolve(user);
+                                return resolve(user);
                               })
                               .catch((err) => {
                                 console.log("Err");
@@ -120,7 +120,7 @@ async function checkEmailVerificationToken(userid, useremail, token) {
                       }
                     });
                   } else {
-                    reject(err);
+                    return reject(err);
                   }
                 });
             })
@@ -130,7 +130,7 @@ async function checkEmailVerificationToken(userid, useremail, token) {
         }
       })
       .catch((err) => {
-        reject(err);
+        return reject(err);
       });
   });
 }

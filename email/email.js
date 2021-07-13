@@ -1,10 +1,4 @@
 const fs = require("fs");
-const config = require("../config.js");
-const db = require("../db/db.js");
-const jwt = require("jsonwebtoken");
-const { DefaultDeserializer } = require("v8");
-const { use } = require("passport");
-const mailer = require("nodemailer");
 
 // Popular Email Provider Domains
 const gmaildomains = ["gmail.com", "googlemail.com"];
@@ -165,11 +159,6 @@ async function getemailinfo(userEmail) {
   domain = await email.match(/[^@]*$/g)[0];
   realemail = email;
 
-  // if (config.user.emailregex.test(email) == true) {
-  //   valid = true;
-  // } else {
-  //   valid = false;
-  // }
   // Cover your eyes on this one, trust me. Idk how to make it better since I can't really use switches in this case. I have an idea but it means I have to organize the provider list in a different way and I'm too lazy to do that.
   if (gmaildomains.includes(domain)) {
     provider = "Gmail";
