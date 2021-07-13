@@ -85,6 +85,10 @@ const userSchema = new mongoose.Schema({
       sparse: true,
     },
   },
+  "2FA": {
+    secret: String,
+    active: Boolean,
+  },
   password: String,
   creationDate: Date,
 });
