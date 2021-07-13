@@ -12,15 +12,19 @@ config.usingproxy = false;
 
 // Rate Limiting:
 
-config.authratelimit = {};
-config.authratelimit.enabled = true;
-config.authratelimit.window = 10 * 60 * 1000;
-config.authratelimit.maxrequests = 20;
+config.ratelimits = [];
 
-config.userratelimit = {};
-config.userratelimit.enabled = true;
-config.userratelimit.window = 10 * 60 * 1000;
-config.userratelimit.maxrequests = 50;
+config.ratelimits[0] = {
+  route: "/auth/",
+  window: 10 * 60 * 1000,
+  maxrequests: 20,
+};
+
+config.ratelimits[1] = {
+  route: "/user/",
+  window: 10 * 60 * 1000,
+  maxrequests: 5,
+};
 
 // DB
 config.db.connectionstring = "";

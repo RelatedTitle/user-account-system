@@ -74,25 +74,15 @@ app.get(
 
 // RATE LIMITING:
 
-if (config.authratelimit.enabled) {
+config.ratelimits.forEach((ratelimit) => {
   app.use(
-    "/auth/",
+    ratelimit.route,
     rateLimit({
-      windowMs: config.authratelimit.window,
-      max: config.authratelimit.maxrequests,
+      windowMs: ratelimit.window,
+      max: ratelimit.maxrequests,
     })
   );
-}
-
-if (config.userratelimit.enabled) {
-  app.use(
-    "/user/",
-    rateLimit({
-      windowMs: config.userratelimit.window,
-      max: config.userratelimit.maxrequests,
-    })
-  );
-}
+});
 
 app.post("/auth/login", async (req, res, next) => {
   passport.authenticate("login", async (err, user, info) => {
