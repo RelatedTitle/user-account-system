@@ -85,7 +85,7 @@ config.ratelimits.forEach((ratelimit) => {
   );
 });
 
-app.post("/auth/login", async (req, res, next) => {
+app.post("/auth/login", checkCaptcha, async (req, res, next) => {
   passport.authenticate("login", async (err, user, info) => {
     try {
       if (err || !user) {
@@ -202,7 +202,7 @@ app.post("/auth/refreshToken", async (req, res) => {
     });
 });
 
-app.post("/auth/requestPasswordReset", async (req, res) => {
+app.post("/auth/requestPasswordReset", checkCaptcha, async (req, res) => {
   passwordReset
     .generatePasswordResetToken(req.body.email)
     .then((passwordResetToken) => {
