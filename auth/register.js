@@ -85,7 +85,7 @@ async function registerUser(
         newUser
           .save()
           .then((registeredUser) => {
-            if (config.user.captchaenabled == true) {
+            if (config.user.captchaenabled === true) {
               trustscore.trustAction(
                 registeredUser.userid,
                 "completedCaptcha",
@@ -95,7 +95,7 @@ async function registerUser(
             // Created user successfully
 
             // Send email verification token (if not verified already):
-            if (registeredUser.email.verified == false) {
+            if (registeredUser.email.verified === false) {
               emailVerification
                 .generateEmailVerificationToken(
                   registeredUser.userid,
@@ -129,7 +129,7 @@ async function registerUser(
           .catch((err) => {
             console.log(err);
             console.log("Failed to register user.");
-            if (err.code == 11000) {
+            if (err.code === 11000) {
               console.log(emailinfo.realemail);
               if (
                 Object.keys(err.keyValue) == "email.email" ||

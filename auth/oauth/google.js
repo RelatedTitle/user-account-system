@@ -36,7 +36,7 @@ passport.use(
               return done(null, newUser);
             })
             .catch((err) => {
-              if (err == "Email already exists") {
+              if (err === "Email already exists") {
                 // If user account already exists, link it to their Google account (also automatically verifies the user's email, not emailhistory though):
                 profile.email.value = emailinfo.realemail;
                 db.user

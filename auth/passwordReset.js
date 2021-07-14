@@ -68,8 +68,8 @@ async function checkPasswordResetToken(email, password, token) {
         if (!passwordResetToken) {
           return reject("No such valid token");
         }
-        if (passwordResetToken.email == email) {
-          if (passwordResetToken.expired == true) {
+        if (passwordResetToken.email === email) {
+          if (passwordResetToken.expired === true) {
             return reject("Token is expired");
           } else {
             db.user

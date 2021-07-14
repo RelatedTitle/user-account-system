@@ -39,8 +39,8 @@ passport.use(
             })
             .catch((err) => {
               if (
-                err == "Email already exists" ||
-                err == "Username already exists"
+                err === "Email already exists" ||
+                err === "Username already exists"
               ) {
                 // If user account already exists, link it to their Discord account (also automatically verifies the user's email, not emailhistory though ONLY IF DISCORD EMAIL IS VERIFIED):
                 profile.email = emailinfo.realemail; // Use sanitized email

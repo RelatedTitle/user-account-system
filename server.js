@@ -73,6 +73,37 @@ app.get(
   }
 );
 
+// MIDDLEWARES:
+
+async function checkCaptcha(req, res, next) {
+  if (!config.user.captchaenabled) {
+    // If captcha is disabled, continue.
+    return next();
+  }
+  if (req.body["h-captcha-response"] === config.user.captchasecretbypasskey) {
+    // If using the bypass key, skip the captcha check.
+    return next();
+  }
+  await verify(config.user.captchasecret, req.body["h-captcha-response"])
+    .then((data) => {
+      if (data.success) {
+        // If the captcha is valid, continue.
+        return next();
+      }
+      // Captcha is invalid.
+      return res.status(409).json({
+        error: true,
+        message: "CAPTCHA Incorrect",
+      });
+    })
+    .catch((err) => {
+      return res.status(500).json({
+        error: true,
+        message: "CAPTCHA Error",
+      });
+    });
+}
+
 // RATE LIMITING:
 
 config.ratelimits.forEach((ratelimit) => {
@@ -85,7 +116,7 @@ config.ratelimits.forEach((ratelimit) => {
   );
 });
 
-app.post("/auth/login", checkCaptcha, async (req, res, next) => {
+app.post("/auth/login", checkCaptcha, (req, res, next) => {
   passport.authenticate("login", async (err, user, info) => {
     try {
       if (err || !user) {
@@ -113,7 +144,7 @@ app.post("/auth/login", checkCaptcha, async (req, res, next) => {
         if (user.userIPs[i].ip === req.ip) {
           // If this IP is already in the userIPs list.
           isnewIP = false; // Set isnewIP to false.
-          if (user.userIPs[i].authorized == false) {
+          if (user.userIPs[i].authorized === false) {
             // If the IP already exists in the database, but is not authorized
             return res.json({
               error: true,
@@ -158,7 +189,7 @@ app.post("/auth/refreshToken", async (req, res) => {
     .findOne({ token: req.body.refreshToken })
     .then((refreshToken) => {
       if (refreshToken) {
-        if (refreshToken.expired == true) {
+        if (refreshToken.expired === true) {
           return res
             .status(401)
             .json({ error: true, message: "Token is expired" });
@@ -202,7 +233,7 @@ app.post("/auth/refreshToken", async (req, res) => {
     });
 });
 
-app.post("/auth/requestPasswordReset", checkCaptcha, async (req, res) => {
+app.post("/auth/requestPasswordReset", checkCaptcha, (req, res) => {
   passwordReset
     .generatePasswordResetToken(req.body.email)
     .then((passwordResetToken) => {
@@ -212,7 +243,7 @@ app.post("/auth/requestPasswordReset", checkCaptcha, async (req, res) => {
       });
     })
     .catch((error) => {
-      if (error == "No such user") {
+      if (error === "No such user") {
         return res.status(200).json({
           error: false,
           message: "Password reset email sent",
@@ -374,6 +405,8 @@ app.post("/auth/register", checkCaptcha, async (req, res) => {
             message: "Unknown error",
           });
           break;
+        default:
+          break;
       }
     });
 });
@@ -525,7 +558,7 @@ app.post(
   "/user/changePassword",
   passport.authenticate("jwt", { session: false }),
   (req, res, next) => {
-    if (req.body.oldPassword == req.body.newPassword) {
+    if (req.body.oldPassword === req.body.newPassword) {
       return res.status(403).json({
         error: true,
         message: "Password cannot be the same",
@@ -588,7 +621,7 @@ app.post(
   (req, res, next) => {
     db.user.findOne({ userid: req.user._id }).then((user) => {
       if (user["2FA"] != undefined) {
-        if (user["2FA"].active == true) {
+        if (user["2FA"].active === true) {
           return res.status(403).json({
             error: true,
             message: "2FA is already enabled",
@@ -620,13 +653,13 @@ app.post(
   passport.authenticate("jwt", { session: false }),
   (req, res, next) => {
     db.user.findOne({ userid: req.user._id }).then((user) => {
-      if (user["2FA"] == undefined) {
+      if (user["2FA"] === undefined) {
         return res.status(403).json({
           error: true,
           message: "2FA secret not requested",
         });
       }
-      if (user["2FA"].active == true) {
+      if (user["2FA"].active === true) {
         return res.status(403).json({
           error: true,
           message: "2FA is already enabled",
@@ -704,40 +737,6 @@ function updatedisposable() {
       console.log("Downloaded updated disposable email domain list");
     }
   );
-}
-
-// MIDDLEWARES:
-
-async function checkCaptcha(req, res, next) {
-  if (config.user.captchaenabled) {
-    if (req.body["h-captcha-response"] == config.user.captchasecretbypasskey) {
-      // If using the bypass key, skip the captcha check.
-      return next();
-    } else {
-      await verify(config.user.captchasecret, req.body["h-captcha-response"])
-        .then((data) => {
-          if (data.success) {
-            // If the captcha is valid, continue.
-            return next();
-          } else {
-            // Captcha is invalid.
-            return res.status(409).json({
-              error: true,
-              message: "CAPTCHA Incorrect",
-            });
-          }
-        })
-        .catch((err) => {
-          return res.status(500).json({
-            error: true,
-            message: "CAPTCHA Error",
-          });
-        });
-    }
-  } else {
-    // If captcha is disabled, continue.
-    return next();
-  }
 }
 
 function checknotAuth(req, res, next) {

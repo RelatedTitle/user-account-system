@@ -60,7 +60,7 @@ async function checkNewIPToken(userid, IP, token) {
       if (!newIPToken) {
         return reject("No such valid token");
       }
-      if (newIPToken.expired == true) {
+      if (newIPToken.expired === true) {
         return reject("Token is expired");
       } else {
         db.user.findOne({ userid: userid }).then((user) => {
@@ -73,7 +73,7 @@ async function checkNewIPToken(userid, IP, token) {
                 // Expire the token
                 for (let i = 0; i < user.userIPs.length; i++) {
                   // Find the IP in the userIPs array and authorize it.
-                  if (user.userIPs[i].ip == IP) {
+                  if (user.userIPs[i].ip === IP) {
                     user.userIPs[i].authorized = true;
                     user.userIPs[i].dateAuthorized = new Date();
                   }

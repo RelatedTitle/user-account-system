@@ -41,8 +41,8 @@ passport.use(
             })
             .catch((err) => {
               if (
-                err == "Email already exists" ||
-                err == "Username already exists"
+                err === "Email already exists" ||
+                err === "Username already exists"
               ) {
                 // If user account already exists, link it to their Facebook account (also automatically verifies the user's email, not emailhistory though):
                 profile.emails[0].value = emailinfo.realemail; // Use sanitized email

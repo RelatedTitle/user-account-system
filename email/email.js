@@ -185,10 +185,10 @@ async function getemailinfo(userEmail) {
   } else if (disposabledomains.includes(domain)) {
     provider = "Disposable";
     type = 2;
-  } else if (domain.match(/.edu$/) == ".edu") {
+  } else if (domain.match(/.edu$/) === ".edu") {
     provider = "Educational";
     type = 3;
-  } else if (domain.match(/.gov$/) == ".gov") {
+  } else if (domain.match(/.gov$/) === ".gov") {
     provider = "Government";
     type = 4;
   } else {
