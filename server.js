@@ -30,6 +30,7 @@ const methodOverride = require("method-override");
 const register = require("./auth/register.js");
 const passwordReset = require("./auth/passwordReset.js");
 const emailVerification = require("./auth/emailVerification.js");
+const newIP = require("./auth/newIP.js");
 const passwordResetConfirmationEmail = require("./email/templates/passwordResetConfirmation.js");
 const issuejwt = require("./auth/issueJWT.js");
 const rateLimit = require("express-rate-limit");
@@ -107,6 +108,32 @@ app.post("/auth/login", async (req, res, next) => {
         }
       }
 
+      let isnewIP;
+      for (let i = 0; i < user.userIPs.length; i++) {
+        if (user.userIPs[i].ip === req.ip) {
+          // If this IP is already in the userIPs list.
+          isnewIP = false; // Set isnewIP to false.
+          if (user.userIPs[i].authorized == false) {
+            // If the IP already exists in the database, but is not authorized
+            return res.json({
+              error: true,
+              message: "IP address not authorized",
+            });
+          }
+        }
+      }
+      if (isnewIP != false) {
+        // If the IP is not in the userIPs list, generated newIP token (It will also add it to the usersIP array as unauthorized)
+        return await newIP
+          .generateNewIPToken(user.userid, user.email.email, req.ip)
+          .then(() => {
+            res.json({
+              error: false,
+              message: "New IP address, authorization required",
+            });
+          });
+      }
+
       req.login(user, { session: false }, async (err) => {
         if (err) return res.status(403).json({ error: true, message: "Error" });
         issuejwt
@@ -120,6 +147,7 @@ app.post("/auth/login", async (req, res, next) => {
           });
       });
     } catch (err) {
+      console.log(err);
       return res.status(500).json({ error: true, message: "Error" });
     }
   })(req, res, next);
@@ -339,7 +367,9 @@ app.post("/auth/register", async (req, res) => {
       .registerUser(
         req.body.email.toLowerCase(),
         req.body.username,
-        req.body.password
+        req.body.password,
+        null,
+        req.ip // No need to worry about x-forwarded-for since express will use that automatically when behind a proxy. (As long as config.usingproxy is set to true)
       )
       .then((registeredUser) => {
         issuejwt
@@ -381,6 +411,40 @@ app.post("/auth/register", async (req, res) => {
         }
       });
   }
+});
+
+app.post("/auth/authorizeNewIP", async (req, res) => {
+  jwt.verify(
+    req.body.newIPToken,
+    config.user.jwtnewipsecret,
+    (err, verifiedToken) => {
+      if (err) {
+        return res.status(401).json({
+          error: true,
+          message: "Tampered or invalid token",
+        });
+      } else {
+        newIP
+          .checkNewIPToken(
+            verifiedToken.userid,
+            verifiedToken.ip,
+            req.body.newIPToken
+          )
+          .then((user) => {
+            return res.status(200).json({
+              error: false,
+              message: "New IP address authorized successfully",
+            });
+          })
+          .catch((err) => {
+            return res.status(401).json({
+              error: true,
+              message: err,
+            });
+          });
+      }
+    }
+  );
 });
 
 app.get(

@@ -39,6 +39,7 @@ config.user.captchasecret = "";
 config.user.jwtauthsecret = "";
 config.user.jwtemailverificationsecret = "";
 config.user.jwtpasswordresetsecret = "";
+config.user.jwtnewipsecret = "";
 config.user.jwtaccesstokenexpiration = 3600; // In seconds (3600 = 1 hour)
 config.user.jwtrefreshtokenexpiration = 2678400; // In seconds (2678400 = 31 days)
 config.user.googleclientid = "";

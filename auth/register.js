@@ -12,7 +12,13 @@ const generateuserid = customAlphabet(
   config.user.idlength
 );
 
-async function registerUser(userEmail, userUsername, userPassword, oauthData) {
+async function registerUser(
+  userEmail,
+  userUsername,
+  userPassword,
+  oauthData,
+  IP
+) {
   let emailinfo = await email.getemailinfo(userEmail);
   let userid = generateuserid();
   let currentDate = new Date();
@@ -67,6 +73,13 @@ async function registerUser(userEmail, userUsername, userPassword, oauthData) {
           newUser.account_connections.push({
             provider: oauthData.provider,
             data: oauthData.data,
+          });
+          // Add registration IP as an authorized user IP:
+          newUser.userIPs.push({
+            ip: IP,
+            dateAdded: new Date(),
+            authorized: true,
+            dateAuthorized: new Date(),
           });
         }
         newUser

@@ -3,6 +3,7 @@ const config = require("../config.js");
 
 const emailVerificationTokenModel = require("./models/emailVerificationToken.model.js");
 const passwordResetTokenModel = require("./models/passwordResetToken.model.js");
+const newIPTokenModel = require("./models/newIPToken.model.js");
 const refreshTokenModel = require("./models/refreshToken.model.js");
 const userModel = require("./models/user.model.js");
 
@@ -37,6 +38,10 @@ const passwordResetToken = mongoose.model(
   "passwordResetToken",
   passwordResetTokenModel.passwordResetTokenSchema
 );
+const newIPToken = mongoose.model(
+  "newIPToken",
+  newIPTokenModel.newIPTokenSchema
+);
 const refreshToken = mongoose.model(
   "refreshToken",
   refreshTokenModel.refreshTokenSchema
@@ -46,5 +51,6 @@ module.exports = {
   user,
   emailVerificationToken,
   passwordResetToken,
+  newIPToken,
   refreshToken,
 };

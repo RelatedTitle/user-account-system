@@ -89,6 +89,13 @@ const userSchema = new mongoose.Schema({
     secret: String,
     active: Boolean,
   },
+  userIPs: 
+  [{
+    ip: String,
+    dateAdded: Date,
+    authorized: Boolean,
+    dateAuthorized: Date,
+  }],
   password: String,
   creationDate: Date,
 });
