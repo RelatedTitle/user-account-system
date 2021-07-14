@@ -15,6 +15,7 @@
     "express": "^4.17.1",
     "express-rate-limit": "^5.3.0",
     "hcaptcha": "0.0.2",
+    "https": "^1.0.0",
     "jsonwebtoken": "^8.5.1",
     "method-override": "^3.0.0",
     "mongoose": "^5.12.3",

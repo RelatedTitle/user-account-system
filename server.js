@@ -35,7 +35,8 @@ const passwordResetConfirmationEmail = require("./email/templates/passwordResetC
 const issuejwt = require("./auth/issueJWT.js");
 const rateLimit = require("express-rate-limit");
 
-const { verify } = require("hcaptcha");
+const hcaptcha = require("hcaptcha");
+const recaptcha = require("./util/reCAPTCHA.js");
 
 require("./auth/auth.js");
 
@@ -52,6 +53,7 @@ const { response } = require("express");
 const { use } = require("passport");
 
 const otp = require("otplib");
+const { isNullOrUndefined } = require("util");
 
 if (config.usingproxy) {
   app.set("trust proxy", 1);
@@ -76,32 +78,97 @@ app.get(
 // MIDDLEWARES:
 
 async function checkCaptcha(req, res, next) {
-  if (!config.user.captchaenabled) {
+  let captchaResponse =
+    req.body["h-captcha-response"] || req.body["g-captcha-response"];
+  let captchaType;
+
+  if (!config.hcaptcha.enabled && !config.recaptcha.enabled) {
     // If captcha is disabled, continue.
     return next();
   }
-  if (req.body["h-captcha-response"] === config.user.captchasecretbypasskey) {
-    // If using the bypass key, skip the captcha check.
+
+  if (
+    captchaResponse === config.captchasecretbypasskey &&
+    config.captchasecretbypasskeyenabled == true
+  ) {
+    // If using the bypass key and it is enabled, skip the captcha check.
     return next();
   }
-  await verify(config.user.captchasecret, req.body["h-captcha-response"])
-    .then((data) => {
-      if (data.success) {
-        // If the captcha is valid, continue.
-        return next();
-      }
-      // Captcha is invalid.
-      return res.status(409).json({
-        error: true,
-        message: "CAPTCHA Incorrect",
-      });
-    })
-    .catch((err) => {
-      return res.status(500).json({
-        error: true,
-        message: "CAPTCHA Error",
-      });
+
+  if (
+    req.body["h-captcha-response"] != null &&
+    req.body["h-captcha-response"] != undefined &&
+    req.body["h-captcha-response"] != ""
+  ) {
+    captchaType = "hcaptcha";
+  } else if (
+    req.body["g-captcha-response"] != null &&
+    req.body["g-captcha-response"] != undefined &&
+    req.body["g-captcha-response"] != ""
+  ) {
+    captchaType = "recaptcha";
+  } else {
+    return res.status(400).json({
+      error: true,
+      message: "No CAPTCHA response provided",
     });
+  }
+
+  if (captchaType === "hcaptcha") {
+    if (!config.hcaptcha.enabled) {
+      return res.status(400).json({
+        error: true,
+        message: "hCaptcha is not enabled",
+      });
+    }
+    hcaptcha
+      .verify(config.hcaptcha.secret, captchaResponse)
+      .then((data) => {
+        if (data.success) {
+          // If the captcha is valid, continue.
+          return next();
+        }
+        // Captcha is invalid.
+        return res.status(409).json({
+          error: true,
+          message: "CAPTCHA Incorrect",
+        });
+      })
+      .catch((err) => {
+        return res.status(500).json({
+          error: true,
+          message: "CAPTCHA Error",
+        });
+      });
+  }
+
+  if (captchaType === "recaptcha") {
+    if (!config.recaptcha.enabled) {
+      return res.status(400).json({
+        error: true,
+        message: "reCAPTCHA is not enabled",
+      });
+    }
+    recaptcha
+      .verify(config.recaptcha.secret, captchaResponse)
+      .then((data) => {
+        if (data.success) {
+          // If the captcha is valid, continue.
+          return next();
+        }
+        // Captcha is invalid.
+        return res.status(409).json({
+          error: true,
+          message: "CAPTCHA Incorrect",
+        });
+      })
+      .catch((err) => {
+        return res.status(500).json({
+          error: true,
+          message: "CAPTCHA Error",
+        });
+      });
+  }
 }
 
 // RATE LIMITING:
@@ -144,7 +211,7 @@ app.post("/auth/login", checkCaptcha, (req, res, next) => {
         if (user.userIPs[i].ip === req.ip) {
           // If this IP is already in the userIPs list.
           isnewIP = false; // Set isnewIP to false.
-          if (user.userIPs[i].authorized === false) {
+          if (!user.userIPs[i].authorized) {
             // If the IP already exists in the database, but is not authorized
             return res.json({
               error: true,
@@ -189,7 +256,7 @@ app.post("/auth/refreshToken", async (req, res) => {
     .findOne({ token: req.body.refreshToken })
     .then((refreshToken) => {
       if (refreshToken) {
-        if (refreshToken.expired === true) {
+        if (refreshToken.expired) {
           return res
             .status(401)
             .json({ error: true, message: "Token is expired" });
@@ -621,7 +688,7 @@ app.post(
   (req, res, next) => {
     db.user.findOne({ userid: req.user._id }).then((user) => {
       if (user["2FA"] != undefined) {
-        if (user["2FA"].active === true) {
+        if (user["2FA"].active) {
           return res.status(403).json({
             error: true,
             message: "2FA is already enabled",
@@ -659,7 +726,7 @@ app.post(
           message: "2FA secret not requested",
         });
       }
-      if (user["2FA"].active === true) {
+      if (user["2FA"].active) {
         return res.status(403).json({
           error: true,
           message: "2FA is already enabled",
@@ -737,14 +804,4 @@ function updatedisposable() {
       console.log("Downloaded updated disposable email domain list");
     }
   );
-}
-
-function checknotAuth(req, res, next) {
-  if (!req.isAuthenticated()) {
-    // If the user is not authenticated, continue
-    return next();
-  } else {
-    // Else, redirect to dashboard
-    res.redirect("/dashboard");
-  }
 }

@@ -26,6 +26,19 @@ config.ratelimits[1] = {
   maxrequests: 5,
 };
 
+// CAPTCHA:
+
+config.captchasecretbypasskeyenabled = true;
+config.captchasecretbypasskey = "";
+
+config.hcaptcha = {};
+config.hcaptcha.enabled = true;
+config.hcaptcha.secret = "";
+
+config.recaptcha = {};
+config.recaptcha.enabled = true;
+config.recaptcha.secret = "";
+
 // DB
 config.db.connectionstring = "";
 
@@ -34,8 +47,6 @@ config.db.connectionstring = "";
 config.user.idlength = 10;
 config.user.idalphabet = "0123456789";
 config.user.bcryptsaltrounds = 10;
-config.user.captchaenabled = true;
-config.user.captchasecret = "";
 config.user.jwtauthsecret = "";
 config.user.jwtemailverificationsecret = "";
 config.user.jwtpasswordresetsecret = "";
@@ -55,7 +66,6 @@ config.user.emailregex =
 config.user.usernameregex =
   /^(?=.{6,18}$)(?![_.])(?!.*[_.]{2})[a-zA-Z0-9._]+(?<![_.])$/;
 config.user.passwordregex = /^(?=.*[A-Z])(?=.*[a-z])(?=.*[0-9]).*$/;
-config.user.captchasecretbypasskey = "";
 
 // Email:
 
