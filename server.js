@@ -301,7 +301,7 @@ app.post("/auth/verifyEmail/:emailVerificationToken?", async (req, res) => {
   );
 });
 
-app.post("/auth/register", async (req, res) => {
+app.post("/auth/register", checkCaptcha, async (req, res) => {
   console.log("Registering user.");
   if (!req.body.email || !req.body.username || !req.body.password) {
     return res.status(400).json({
@@ -329,88 +329,53 @@ app.post("/auth/register", async (req, res) => {
     });
   }
 
-  // Verifies HCaptcha:
-
-  if (config.user.captchaenabled) {
-    if (req.body["h-captcha-response"] == config.user.captchasecretbypasskey) {
-      captchaComplete = true;
-    } else {
-      await verify(config.user.captchasecret, req.body["h-captcha-response"])
-        .then((data) => {
-          if (data.success) {
-            console.log("CAPTCHA Correct");
-            captchaComplete = true;
-          } else {
-            console.log("CAPTCHA Incorrect");
-            captchaComplete = false;
-            return res.status(409).json({
-              error: true,
-              message: "CAPTCHA Incorrect",
-            });
-          }
-        })
-        .catch((err) => {
-          captchaComplete = false;
-          console.log("CAPTCHA ERROR: " + err);
-          return res.status(500).json({
-            error: true,
-            message: "CAPTCHA Error",
+  await register
+    .registerUser(
+      req.body.email.toLowerCase(),
+      req.body.username,
+      req.body.password,
+      null,
+      req.ip // No need to worry about x-forwarded-for since express will use that automatically when behind a proxy. (As long as config.usingproxy is set to true)
+    )
+    .then((registeredUser) => {
+      issuejwt
+        .issueRefreshJWT(registeredUser.userid, registeredUser.email.email)
+        .then((tokens) => {
+          res.status(201).json({
+            error: false,
+            message: "User registered successfully",
+            user: {
+              userid: registeredUser.userid,
+              username: registeredUser.username.displayusername,
+              email: registeredUser.email.email,
+            },
+            accessToken: tokens.accessToken,
+            refreshToken: tokens.refreshToken,
           });
         });
-    }
-  } else {
-    captchaComplete = true;
-  }
-
-  if (captchaComplete == true) {
-    await register
-      .registerUser(
-        req.body.email.toLowerCase(),
-        req.body.username,
-        req.body.password,
-        null,
-        req.ip // No need to worry about x-forwarded-for since express will use that automatically when behind a proxy. (As long as config.usingproxy is set to true)
-      )
-      .then((registeredUser) => {
-        issuejwt
-          .issueRefreshJWT(registeredUser.userid, registeredUser.email.email)
-          .then((tokens) => {
-            res.status(201).json({
-              error: false,
-              message: "User registered successfully",
-              user: {
-                userid: registeredUser.userid,
-                username: registeredUser.username.displayusername,
-                email: registeredUser.email.email,
-              },
-              accessToken: tokens.accessToken,
-              refreshToken: tokens.refreshToken,
-            });
+    })
+    .catch((error) => {
+      switch (error) {
+        case "Username already exists":
+          res.status(409).json({
+            error: true,
+            message: "Username already exists",
           });
-      })
-      .catch((error) => {
-        switch (error) {
-          case "Username already exists":
-            res.status(409).json({
-              error: true,
-              message: "Username already exists",
-            });
-            break;
-          case "Email already exists":
-            res.status(409).json({
-              error: true,
-              message: "Email already exists",
-            });
-            break;
-          case "Unknown error":
-            res.status(500).json({
-              error: true,
-              message: "Unknown error",
-            });
-            break;
-        }
-      });
-  }
+          break;
+        case "Email already exists":
+          res.status(409).json({
+            error: true,
+            message: "Email already exists",
+          });
+          break;
+        case "Unknown error":
+          res.status(500).json({
+            error: true,
+            message: "Unknown error",
+          });
+          break;
+      }
+    });
 });
 
 app.post("/auth/authorizeNewIP", async (req, res) => {
@@ -741,15 +706,39 @@ function updatedisposable() {
   );
 }
 
-// function checkAuth(req, res, next) {
-//   if (req.isAuthenticated()) {
-//     // If the user is authenticated, continue.
-//     return next();
-//   } else {
-//     // Else, redirect to the login page.
-//     res.redirect("/login");
-//   }
-// }
+// MIDDLEWARES:
+
+async function checkCaptcha(req, res, next) {
+  if (config.user.captchaenabled) {
+    if (req.body["h-captcha-response"] == config.user.captchasecretbypasskey) {
+      // If using the bypass key, skip the captcha check.
+      return next();
+    } else {
+      await verify(config.user.captchasecret, req.body["h-captcha-response"])
+        .then((data) => {
+          if (data.success) {
+            // If the captcha is valid, continue.
+            return next();
+          } else {
+            // Captcha is invalid.
+            return res.status(409).json({
+              error: true,
+              message: "CAPTCHA Incorrect",
+            });
+          }
+        })
+        .catch((err) => {
+          return res.status(500).json({
+            error: true,
+            message: "CAPTCHA Error",
+          });
+        });
+    }
+  } else {
+    // If captcha is disabled, continue.
+    return next();
+  }
+}
 
 function checknotAuth(req, res, next) {
   if (!req.isAuthenticated()) {
