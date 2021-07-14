@@ -18,7 +18,9 @@ The purpose of this project is to make implementing auth in my future projects e
 
 ### Features:
 * Full **user registration** and **login**.
-* **HCaptcha** Support.
+* Uses **CAPTCHA** to secure endpoints. Currently supports:
+	* [hCaptcha](https://www.hcaptcha.com/)
+	* [reCAPTCHA](https://www.google.com/recaptcha/about/)
 * **Trustscore** system for verifying that accounts aren't bots/malicious.
 * **OAuth** support for the following providers:
 	* Discord
