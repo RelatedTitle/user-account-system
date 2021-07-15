@@ -30,7 +30,7 @@ async function generateEmailVerificationToken(userid, email) {
               config.fqdn + "/auth/verifyEmail/" + token // Not the real URL for now, when there is a frontend, this will point to that. The frontend will then send a request to the endpoint with the token.
             )
             .then((emailInfo) => {});
-          return resolve(emailInfo);
+          return resolve();
         });
       });
   });
