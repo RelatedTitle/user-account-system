@@ -41,9 +41,8 @@ async function generateNewIPToken(userid, email, IP) {
                     currentNewIPToken.token,
                   IP
                 )
-                .then((emailInfo) => {
-                  resolve(currentNewIPToken);
-                });
+                .then((emailInfo) => {});
+              return resolve(currentNewIPToken);
             })
             .catch((err) => {
               return reject("Error saving new IP token");
@@ -60,7 +59,7 @@ async function checkNewIPToken(userid, IP, token) {
       if (!newIPToken) {
         return reject("No such valid token");
       }
-      if (newIPToken.expired === true) {
+      if (newIPToken.expired) {
         return reject("Token is expired");
       } else {
         db.user.findOne({ userid: userid }).then((user) => {

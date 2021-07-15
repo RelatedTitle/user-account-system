@@ -29,9 +29,8 @@ async function generateEmailVerificationToken(userid, email) {
               email,
               config.fqdn + "/auth/verifyEmail/" + token // Not the real URL for now, when there is a frontend, this will point to that. The frontend will then send a request to the endpoint with the token.
             )
-            .then((emailInfo) => {
-              return resolve(emailInfo);
-            });
+            .then((emailInfo) => {});
+          return resolve(emailInfo);
         });
       });
   });
@@ -46,7 +45,7 @@ async function checkEmailVerificationToken(userid, useremail, token) {
         if (!emailVerificationToken) {
           return reject("No such valid token");
         }
-        if (emailVerificationToken.expired === true) {
+        if (emailVerificationToken.expired) {
           return reject("Token is expired");
         } else {
           db.emailVerificationToken
@@ -78,7 +77,7 @@ async function checkEmailVerificationToken(userid, useremail, token) {
                     // If the error indicates that the email is a duplicate (Another account registered with that email)
                     db.user.findOne({ "email.email": email }).then((user) => {
                       // Check if that account's email is verified
-                      if (user.email.verified === true) {
+                      if (user.email.verified) {
                         return reject(
                           "Email address already in use by another account"
                         );

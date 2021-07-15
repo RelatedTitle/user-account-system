@@ -14,9 +14,8 @@ async function generatePasswordResetToken(email) {
       if (!user) {
         passwordResetEmailNoUser
           .sendPasswordResetEmailNoUser(userEmail)
-          .then((emailInfo) => {
-            return reject("No such user");
-          });
+          .then((emailInfo) => {});
+        return reject("No such user");
       } else {
         // Expire previous tokens:
         db.passwordResetToken
@@ -44,9 +43,8 @@ async function generatePasswordResetToken(email) {
                       "/auth/resetPassword/" +
                       currentPasswordResetToken.token
                   )
-                  .then((emailInfo) => {
-                    resolve(currentPasswordResetToken);
-                  });
+                  .then((emailInfo) => {});
+                resolve(currentPasswordResetToken);
               })
               .catch((err) => {
                 return reject("Error saving password reset token");
@@ -69,7 +67,7 @@ async function checkPasswordResetToken(email, password, token) {
           return reject("No such valid token");
         }
         if (passwordResetToken.email === email) {
-          if (passwordResetToken.expired === true) {
+          if (passwordResetToken.expired) {
             return reject("Token is expired");
           } else {
             db.user
@@ -104,9 +102,8 @@ async function checkPasswordResetToken(email, password, token) {
                                         .sendPasswordChangeConfirmationEmail(
                                           user.email.email
                                         )
-                                        .then((emailInfo) => {
-                                          return resolve(user);
-                                        });
+                                        .then((emailInfo) => {});
+                                      return resolve(user);
                                     })
                                     .catch((err) => {
                                       return reject("Password hashing error");
