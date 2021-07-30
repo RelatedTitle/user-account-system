@@ -599,7 +599,7 @@ app.get(
 
 app.post(
   "/user/changeEmail",
-  passport.authenticate("jwt", { session: false }),
+  passport.authenticate("jwt", { failWithError: true, session: false }),
   (req, res, next) => {
     if (!config.user.emailregex.test(req.body.email.toLowerCase())) {
       return res.status(400).json({
@@ -618,12 +618,16 @@ app.post(
       .catch((err) => {
         res.status(400).json({ error: true, message: err });
       });
+  },
+  function (err, req, res, next) {
+    // Handle error
+    return res.status(401).send({ error: false, message: err });
   }
 );
 
 app.post(
   "/user/changePassword",
-  passport.authenticate("jwt", { session: false }),
+  passport.authenticate("jwt", { failWithError: true, session: false }),
   (req, res, next) => {
     if (req.body.oldPassword === req.body.newPassword) {
       return res.status(403).json({
@@ -679,12 +683,16 @@ app.post(
         }
       });
     });
+  },
+  function (err, req, res, next) {
+    // Handle error
+    return res.status(401).send({ error: false, message: err });
   }
 );
 
 app.post(
   "/user/request2FAsecret",
-  passport.authenticate("jwt", { session: false }),
+  passport.authenticate("jwt", { failWithError: true, session: false }),
   (req, res, next) => {
     db.user.findOne({ userid: req.user._id }).then((user) => {
       if (user["2FA"] != undefined) {
@@ -712,12 +720,16 @@ app.post(
           });
         });
     });
+  },
+  function (err, req, res, next) {
+    // Handle error
+    return res.status(401).send({ error: false, message: err });
   }
 );
 
 app.post(
   "/user/activate2FA",
-  passport.authenticate("jwt", { session: false }),
+  passport.authenticate("jwt", { failWithError: true, session: false }),
   (req, res, next) => {
     db.user.findOne({ userid: req.user._id }).then((user) => {
       if (user["2FA"] === undefined) {
@@ -750,12 +762,16 @@ app.post(
         });
       }
     });
+  },
+  function (err, req, res, next) {
+    // Handle error
+    return res.status(401).send({ error: false, message: err });
   }
 );
 
 app.post(
   "/user/disable2FA",
-  passport.authenticate("jwt", { session: false }),
+  passport.authenticate("jwt", { failWithError: true, session: false }),
   (req, res, next) => {
     db.user.findOne({ userid: req.user._id }).then((user) => {
       if (user["2FA"]?.active != true) {
@@ -786,6 +802,10 @@ app.post(
         });
       }
     });
+  },
+  function (err, req, res, next) {
+    // Handle error
+    return res.status(401).send({ error: false, message: err });
   }
 );
 
