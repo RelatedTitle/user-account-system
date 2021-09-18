@@ -20,7 +20,7 @@ passport.use(
         // User's email address(es) is(are) private or inaccessible for some other reason
         return done("Email address private or inaccessible", null);
       }
-      emailinfo = await email.getemailinfo(profile.email);
+      email_info = await email.get_email_info(profile.email);
       db.user.findOne({ "oauth.googleoauthid": profile.id }).then((user) => {
         if (user) {
           // User found:
@@ -28,7 +28,7 @@ passport.use(
         } else {
           // Register a new user (also automatically verifies the user's email):
           register
-            .registerUser(profile.email, null, null, {
+            .register_user(profile.email, null, null, {
               provider: "Google",
               data: profile,
             })
@@ -38,7 +38,7 @@ passport.use(
             .catch((err) => {
               if (err === "Email already exists") {
                 // If user account already exists, link it to their Google account (also automatically verifies the user's email, not emailhistory though):
-                profile.email.value = emailinfo.realemail;
+                profile.email.value = email_info.realemail;
                 db.user
                   .findOneAndUpdate(
                     { "email.email": profile.email },
@@ -55,10 +55,10 @@ passport.use(
                       },
                     }
                   )
-                  .then((updatedUser) => {
+                  .then((updated_user) => {
                     // updateOne does not return the full updated document so we use need to use findOneAndUpdate
 
-                    return done(null, updatedUser);
+                    return done(null, updated_user);
                   });
               } else {
                 // Some other error

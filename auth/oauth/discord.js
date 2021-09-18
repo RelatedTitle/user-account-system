@@ -22,7 +22,7 @@ passport.use(
         // User's email address(es) is(are) private or inaccessible for some other reason
         return done("Email address private or inaccessible", null);
       }
-      emailinfo = await email.getemailinfo(profile.email);
+      email_info = await email.get_email_info(profile.email);
       db.user.findOne({ "oauth.discordoauthid": profile.id }).then((user) => {
         if (user) {
           // User found:
@@ -30,7 +30,7 @@ passport.use(
         } else {
           // Register a new user (only automatically verifies the user's email if it is verified on Discord, for some dumb reason they allow unverified users to use oauth):
           register
-            .registerUser(profile.email, profile.username, null, {
+            .register_user(profile.email, profile.username, null, {
               provider: "Discord",
               data: profile,
             })
@@ -43,7 +43,7 @@ passport.use(
                 err === "Username already exists"
               ) {
                 // If user account already exists, link it to their Discord account (also automatically verifies the user's email, not emailhistory though ONLY IF DISCORD EMAIL IS VERIFIED):
-                profile.email = emailinfo.realemail; // Use sanitized email
+                profile.email = email_info.realemail; // Use sanitized email
                 if (!profile.verified) {
                   return done(
                     "Unable to link this Discord account to an existing account since the Discord account's email is unverified",
@@ -66,11 +66,11 @@ passport.use(
                         },
                       }
                     )
-                    .then((updatedUser) => {
-                      if (!updatedUser) {
+                    .then((updated_user) => {
+                      if (!updated_user) {
                         // Username belonged to another account
                         register
-                          .registerUser(profile.email, null, null, {
+                          .register_user(profile.email, null, null, {
                             provider: "Discord",
                             data: profile,
                           })
@@ -79,7 +79,7 @@ passport.use(
                           });
                       }
                       // updateOne does not return the full updated document so we use need to use findOneAndUpdate
-                      return done(null, updatedUser);
+                      return done(null, updated_user);
                     });
                 }
               } else {
