@@ -28,6 +28,8 @@ const passport = require("passport");
 const methodOverride = require("method-override");
 const rateLimit = require("express-rate-limit");
 
+require("./auth/auth.js");
+
 const app = express();
 app.disable("x-powered-by");
 
