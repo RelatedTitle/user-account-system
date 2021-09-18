@@ -2,45 +2,48 @@ const config = require("../config.js");
 const jwt = require("jsonwebtoken");
 const db = require("../db/db.js");
 
-function issueAccessJWT(userid, email) {
+function issue_access_jwt(userid, email) {
   return new Promise(function (resolve, reject) {
     body = {
       _id: userid,
       email: email,
     };
-    accessToken = jwt.sign(
+    access_token = jwt.sign(
       { user: body, type: "access" },
-      config.user.jwtauthsecret
+      config.user.jwt_auth_secret
     );
 
-    resolve({ accessToken: accessToken });
+    resolve({ access_token: access_token });
   });
 }
 
-function issueRefreshJWT(userid, email) {
+function issue_refresh_jwt(userid, email) {
   return new Promise(function (resolve, reject) {
     body = {
       _id: userid,
       email: email,
     };
-    accessToken = jwt.sign(
+    access_token = jwt.sign(
       { user: body, type: "access" },
-      config.user.jwtauthsecret
+      config.user.jwt_auth_secret
     );
 
-    refreshToken = new db.refreshToken({
+    refresh_token = new db.refresh_token({
       userid: userid,
       email: email,
       token: jwt.sign(
         { user: body, type: "refresh" },
-        config.user.jwtauthsecret
+        config.user.jwt_auth_secret
       ),
       expired: false,
     });
-    refreshToken.save().then((refreshToken) => {
-      resolve({ accessToken: accessToken, refreshToken: refreshToken.token });
+    refresh_token.save().then((refresh_token) => {
+      resolve({
+        access_token: access_token,
+        refresh_token: refresh_token.token,
+      });
     });
   });
 }
 
-module.exports = { issueAccessJWT, issueRefreshJWT };
+module.exports = { issue_access_jwt, issue_refresh_jwt };

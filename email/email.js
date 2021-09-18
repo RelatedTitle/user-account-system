@@ -154,7 +154,7 @@ const disposabledomains = JSON.parse(
   fs.readFileSync("./email/disposabledomains.json", "utf8")
 );
 
-async function getemailinfo(userEmail) {
+async function get_email_info(userEmail) {
   email = await userEmail.toLowerCase();
   domain = await email.match(/[^@]*$/g)[0];
   realemail = email;
@@ -211,5 +211,5 @@ async function gmailsanitize(email, domain) {
 
 module.exports = {
   gmailsanitize,
-  getemailinfo,
+  get_email_info,
 };

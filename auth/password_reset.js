@@ -3,48 +3,48 @@ const db = require("../db/db.js");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 
-const passwordResetEmail = require("../email/templates/passwordReset.js");
-const passwordResetEmailNoUser = require("../email/templates/passwordResetNoUser.js");
-const passwordResetConfirmationEmail = require("../email/templates/passwordResetConfirmation.js");
+const password_reset_email = require("../email/templates/password_reset.js");
+const password_reset_email_no_user = require("../email/templates/password_reset_no_user.js");
+const password_reset_confirmation_email = require("../email/templates/password_reset_confirmation.js");
 
-async function generatePasswordResetToken(email) {
+async function generate_password_reset_token(email) {
   userEmail = email.toLowerCase();
   return new Promise(function (resolve, reject) {
     db.user.findOne({ "email.email": userEmail }).then((user) => {
       if (!user) {
-        passwordResetEmailNoUser
-          .sendPasswordResetEmailNoUser(userEmail)
-          .then((emailInfo) => {});
+        password_reset_email_no_user
+          .send_password_reset_email_no_user(userEmail)
+          .then((email_info) => {});
         return reject("No such user");
       } else {
         // Expire previous tokens:
-        db.passwordResetToken
+        db.password_reset_token
           .updateMany(
             { email: userEmail, expired: false },
             { $set: { expired: true } }
           )
           .then((tokens) => {
             token = jwt.sign(
-              { email: userEmail, type: "passwordreset" },
-              config.user.jwtpasswordresetsecret
+              { email: userEmail, type: "password_reset" },
+              config.user.jwt_password_reset_secret
             );
-            passwordResetToken = new db.passwordResetToken({
+            password_reset_token = new db.password_reset_token({
               email: userEmail,
               token: token,
               expired: false,
             });
-            passwordResetToken
+            password_reset_token
               .save()
-              .then((currentPasswordResetToken) => {
-                passwordResetEmail
-                  .sendPasswordResetEmail(
+              .then((current_password_reset_token) => {
+                password_reset_email
+                  .send_password_reset_email(
                     userEmail,
                     config.fqdn +
                       "/auth/resetPassword/" +
-                      currentPasswordResetToken.token
+                      current_password_reset_token.token
                   )
-                  .then((emailInfo) => {});
-                resolve(currentPasswordResetToken);
+                  .then((email_info) => {});
+                resolve(current_password_reset_token);
               })
               .catch((err) => {
                 return reject("Error saving password reset token");
@@ -58,7 +58,7 @@ async function generatePasswordResetToken(email) {
   });
 }
 
-async function checkPasswordResetToken(email, password, token) {
+async function check_password_reset_token(email, password, token) {
   return new Promise(function (resolve, reject) {
     db.passwordResetToken
       .findOne({ token: token })
@@ -87,22 +87,22 @@ async function checkPasswordResetToken(email, password, token) {
                         )
                         .then((passwordResetToken) => {
                           bcrypt.genSalt(
-                            config.user.bcryptsaltrounds,
+                            config.user.bcrypt_salt_rounds,
                             function (err, salt) {
                               // Hashes password:
                               bcrypt.hash(
                                 password,
                                 salt,
-                                function (err, hashedPassword) {
-                                  user.password = hashedPassword;
+                                function (err, hashed_password) {
+                                  user.password = hashed_password;
                                   user
                                     .save()
                                     .then((user) => {
-                                      passwordResetConfirmationEmail
-                                        .sendPasswordChangeConfirmationEmail(
+                                      password_reset_confirmation_email
+                                        .send_password_change_confirmation_email(
                                           user.email.email
                                         )
-                                        .then((emailInfo) => {});
+                                        .then((email_info) => {});
                                       return resolve(user);
                                     })
                                     .catch((err) => {
@@ -135,4 +135,7 @@ async function checkPasswordResetToken(email, password, token) {
   });
 }
 
-module.exports = { generatePasswordResetToken, checkPasswordResetToken };
+module.exports = {
+  generate_password_reset_token,
+  check_password_reset_token,
+};

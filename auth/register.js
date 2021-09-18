@@ -4,22 +4,22 @@ const email = require("../email/email.js");
 const bcrypt = require("bcrypt");
 const trustscore = require("../trustscore.js");
 
-const emailVerification = require("./emailVerification.js");
+const email_verification = require("./email_verification.js");
 
 const { customAlphabet } = require("nanoid");
 const generateuserid = customAlphabet(
-  config.user.idalphabet,
-  config.user.idlength
+  config.user.id_alphabet,
+  config.user.id_length
 );
 
-async function registerUser(
+async function register_user(
   userEmail,
   userUsername,
   userPassword,
   oauthData,
   IP
 ) {
-  let emailinfo = await email.getemailinfo(userEmail);
+  let email_info = await email.get_email_info(userEmail);
   let userid = generateuserid();
   let currentDate = new Date();
 
@@ -31,22 +31,22 @@ async function registerUser(
   return new Promise(function (resolve, reject) {
     // Gets email info:
     // Generates salt with defined salt rounds in config:
-    bcrypt.genSalt(config.user.bcryptsaltrounds, function (err, salt) {
+    bcrypt.genSalt(config.user.bcrypt_salt_rounds, function (err, salt) {
       // Hashes password:
-      bcrypt.hash(userPassword, salt, function (err, hashedPassword) {
+      bcrypt.hash(userPassword, salt, function (err, hashed_password) {
         //Stores user in DB:
         let newUser = new db.user({
           userid: userid,
           username: {
-            displayusername: userUsername,
-            realusername: userUsername?.toLowerCase(),
+            display_username: userUsername,
+            real_username: userUsername?.toLowerCase(),
           },
           email: {
-            email: emailinfo.realemail,
+            email: email_info.realemail,
             verified: false,
           },
-          password: hashedPassword,
-          creationDate: currentDate,
+          password: hashed_password,
+          creation_date: currentDate,
           oauth: {},
         });
         if (oauthData) {
@@ -74,20 +74,20 @@ async function registerUser(
             provider: oauthData.provider,
             data: oauthData.data,
           });
-          // Add registration IP as an authorized user IP:
-          newUser.userIPs.push({
-            ip: IP,
-            dateAdded: new Date(),
-            authorized: true,
-            dateAuthorized: new Date(),
-          });
         }
+        // Add registration IP as an authorized user IP:
+        newUser.userIPs.push({
+          ip: IP,
+          date_added: new Date(),
+          authorized: true,
+          date_authorized: new Date(),
+        });
         newUser
           .save()
-          .then((registeredUser) => {
+          .then((registered_user) => {
             if (config.user.captchaenabled) {
               trustscore.trustAction(
-                registeredUser.userid,
+                registered_user.userid,
                 "completedCaptcha",
                 { captcha: "User registration captcha" }
               );
@@ -95,42 +95,42 @@ async function registerUser(
             // Created user successfully
 
             // Send email verification token (if not verified already):
-            if (!registeredUser.email.verified) {
-              emailVerification
-                .generateEmailVerificationToken(
-                  registeredUser.userid,
-                  registeredUser.email.email
+            if (!registered_user.email.verified) {
+              email_verification
+                .generate_email_verification_token(
+                  registered_user.userid,
+                  registered_user.email.email
                 )
-                .then((emailVerificationToken) => {
+                .then((email_verification_token) => {
                   console.log(
                     "Created user " +
-                      registeredUser.userid +
+                      registered_user.userid +
                       ", username " +
-                      registeredUser.username.displayusername +
+                      registered_user.username.display_username +
                       " email " +
-                      registeredUser.email.email +
+                      registered_user.email.email +
                       "."
                   );
                 });
-              resolve(registeredUser);
+              resolve(registered_user);
             } else {
               console.log(
                 "Created user " +
-                  registeredUser.userid +
+                  registered_user.userid +
                   ", username " +
-                  registeredUser.username.displayusername +
+                  registered_user.username.display_username +
                   " email " +
-                  registeredUser.email.email +
+                  registered_user.email.email +
                   "."
               );
-              resolve(registeredUser);
+              resolve(registered_user);
             }
           })
           .catch((err) => {
             console.log(err);
             console.log("Failed to register user.");
             if (err.code === 11000) {
-              console.log(emailinfo.realemail);
+              console.log(email_info.realemail);
               if (
                 Object.keys(err.keyValue) == "email.email" ||
                 Object.keys(err.keyValue) == "emailhistory.email"
@@ -139,8 +139,8 @@ async function registerUser(
                 console.log("Email already exists");
                 reject("Email already exists");
               } else if (
-                Object.keys(err.keyValue) == "username.displayusername" ||
-                Object.keys(err.keyValue) == "username.realusername"
+                Object.keys(err.keyValue) == "username.display_username" ||
+                Object.keys(err.keyValue) == "username.real_username"
               ) {
                 // Already existing username
                 console.log("Username already exists");
@@ -161,4 +161,4 @@ async function registerUser(
   });
 }
 
-module.exports = { registerUser };
+module.exports = { register_user };

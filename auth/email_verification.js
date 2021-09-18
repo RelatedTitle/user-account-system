@@ -2,56 +2,56 @@ const config = require("../config.js");
 const jwt = require("jsonwebtoken");
 const db = require("../db/db.js");
 const email = require("../email/email.js");
-const emailVerificationEmail = require("../email/templates/emailVerification.js");
+const email_verification_email = require("../email/templates/email_verification.js");
 
-async function generateEmailVerificationToken(userid, email) {
+async function generate_email_verification_token(userid, email) {
   return new Promise(function (resolve, reject) {
     // Expire previous tokens:
-    db.emailVerificationToken
+    db.email_verification_token
       .updateMany(
         { userid: userid, expired: false },
         { $set: { expired: true } }
       )
-      .then((expiredTokens) => {
+      .then((expired_tokens) => {
         token = jwt.sign(
-          { userid: userid, email: email, type: "emailverification" },
-          config.user.jwtemailverificationsecret
+          { userid: userid, email: email, type: "email_verification" },
+          config.user.jwt_email_verification_secret
         );
-        emailVerificationToken = new db.emailVerificationToken({
+        email_verification_token = new db.email_verification_token({
           userid: userid,
           email: email,
           token: token,
           expired: false,
         });
-        emailVerificationToken.save().then((newEmailVerificationToken) => {
-          emailVerificationEmail
-            .sendEmailVerificationEmail(
+        email_verification_token.save().then((new_email_verification_token) => {
+          email_verification_email
+            .send_email_verification_email(
               email,
               config.fqdn + "/auth/verifyEmail/" + token // Not the real URL for now, when there is a frontend, this will point to that. The frontend will then send a request to the endpoint with the token.
             )
-            .then((emailInfo) => {});
+            .then((email_info) => {});
           return resolve();
         });
       });
   });
 }
 
-async function checkEmailVerificationToken(userid, useremail, token) {
-  emailinfo = await email.getemailinfo(useremail);
+async function check_email_verification_token(userid, useremail, token) {
+  email_info = await email.get_email_info(useremail);
   return new Promise(function (resolve, reject) {
-    db.emailVerificationToken
+    db.email_verification_token
       .findOne({ token: token })
-      .then((emailVerificationToken) => {
-        if (!emailVerificationToken) {
+      .then((email_verification_token) => {
+        if (!email_verification_token) {
           return reject("No such valid token");
         }
-        if (emailVerificationToken.expired) {
+        if (email_verification_token.expired) {
           return reject("Token is expired");
         } else {
-          db.emailVerificationToken
+          db.email_verification_token
             .updateOne({ token: token }, { $set: { expired: true } })
-            .then((emailVerificationToken) => {
-              useremail = emailinfo.realemail;
+            .then((email_verification_token) => {
+              useremail = email_info.realemail;
               db.user
                 .updateOne(
                   { userid: userid },
@@ -136,6 +136,6 @@ async function checkEmailVerificationToken(userid, useremail, token) {
 // Callback hell ;(
 
 module.exports = {
-  generateEmailVerificationToken,
-  checkEmailVerificationToken,
+  generate_email_verification_token,
+  check_email_verification_token,
 };

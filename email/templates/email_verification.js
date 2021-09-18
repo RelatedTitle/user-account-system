@@ -11,17 +11,17 @@ let transporter = mailer.createTransport({
   },
 });
 
-async function sendEmailVerificationEmail(to, emailVerificationURL) {
+async function send_email_verification_email(to, email_verification_URL) {
   return await transporter.sendMail({
     from: config.email.from,
     to: to,
     subject: `[${config.servicename}] Email Verification`,
     text: `Please click the following link to verify your ${config.servicename} account.
         
-        ${emailVerificationURL}
+        ${email_verification_URL}
         `,
     // html: "",
   });
 }
 
-module.exports = { sendEmailVerificationEmail };
+module.exports = { send_email_verification_email };

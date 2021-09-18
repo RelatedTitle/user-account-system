@@ -1,10 +1,10 @@
 const mongoose = require("mongoose");
 
-const emailVerificationTokenSchema = new mongoose.Schema({
+const password_reset_token_schema = new mongoose.Schema({
   userid: Number,
   email: String,
   token: String,
   expired: Boolean,
 });
 
-module.exports = { emailVerificationTokenSchema };
+module.exports = { password_reset_token_schema };

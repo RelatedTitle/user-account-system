@@ -56,7 +56,7 @@ passport.use(
 passport.use(
   new JWTStrategy(
     {
-      secretOrKey: config.user.jwtauthsecret,
+      secretOrKey: config.user.jwt_auth_secret,
       jwtFromRequest: ExtractJWT.ExtractJwt.fromExtractors([
         ExtractJWT.ExtractJwt.fromUrlQueryParameter("secret_token"),
         ExtractJWT.ExtractJwt.fromHeader("secret_token"),
@@ -68,7 +68,7 @@ passport.use(
       try {
         if (
           Math.round(Date.now() / 1000) - token.iat >=
-          config.user.jwtaccesstokenexpiration
+          config.user.jwt_access_token_expiration
         ) {
           return done("Token expired");
         } else {

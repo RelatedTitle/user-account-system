@@ -24,8 +24,8 @@ async function trustAction(userid, action, data) {
               },
             }
           )
-          .then((updatedUser) => {
-            resolve(updatedUser);
+          .then((updated_user) => {
+            resolve(updated_user);
           })
           .catch((err) => {
             reject(err);
@@ -53,8 +53,8 @@ async function trustAction(userid, action, data) {
               },
             }
           )
-          .then((updatedUser) => {
-            resolve(updatedUser);
+          .then((updated_user) => {
+            resolve(updated_user);
           })
           .catch((err) => {
             reject(err);
@@ -78,8 +78,8 @@ async function trustAction(userid, action, data) {
               },
             }
           )
-          .then((updatedUser) => {
-            resolve(updatedUser);
+          .then((updated_user) => {
+            resolve(updated_user);
           })
           .catch((err) => {
             reject(err);
@@ -108,8 +108,8 @@ async function trustAction(userid, action, data) {
               },
             }
           )
-          .then((updatedUser) => {
-            resolve(updatedUser);
+          .then((updated_user) => {
+            resolve(updated_user);
           })
           .catch((err) => {
             reject(err);
@@ -138,8 +138,8 @@ async function trustAction(userid, action, data) {
               },
             }
           )
-          .then((updatedUser) => {
-            resolve(updatedUser);
+          .then((updated_user) => {
+            resolve(updated_user);
           })
           .catch((err) => {
             reject(err);

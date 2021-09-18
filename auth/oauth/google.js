@@ -10,12 +10,12 @@ const GoogleStrategy = require("passport-google-oauth2").Strategy;
 passport.use(
   new GoogleStrategy(
     {
-      clientID: config.user.googleclientid,
-      clientSecret: config.user.googleclientsecret,
+      clientID: config.user.google_client_id,
+      clientSecret: config.user.google_client_secret,
       callbackURL: config.fqdn + "/auth/google/callback",
       passReqToCallback: true,
     },
-    async function (request, accessToken, refreshToken, profile, done) {
+    async function (request, access_token, refresh_token, profile, done) {
       if (!profile.email) {
         // User's email address(es) is(are) private or inaccessible for some other reason
         return done("Email address private or inaccessible", null);

@@ -11,7 +11,7 @@ let transporter = mailer.createTransport({
   },
 });
 
-async function sendNewIPEmail(to, newIPURL, IP) {
+async function send_new_IP_email(to, newIPURL, IP) {
   return await transporter.sendMail({
     from: config.email.from,
     to: to,
@@ -29,4 +29,4 @@ async function sendNewIPEmail(to, newIPURL, IP) {
   });
 }
 
-module.exports = { sendNewIPEmail };
+module.exports = { send_new_IP_email };

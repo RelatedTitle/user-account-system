@@ -11,7 +11,7 @@ let transporter = mailer.createTransport({
   },
 });
 
-async function sendPasswordResetEmailNoUser(to) {
+async function send_password_reset_email_no_user(to) {
   return await transporter.sendMail({
     from: config.email.from,
     to: to,
@@ -25,4 +25,4 @@ async function sendPasswordResetEmailNoUser(to) {
   });
 }
 
-module.exports = { sendPasswordResetEmailNoUser };
+module.exports = { send_password_reset_email_no_user };

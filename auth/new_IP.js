@@ -2,9 +2,9 @@ const config = require("../config.js");
 const db = require("../db/db.js");
 const jwt = require("jsonwebtoken");
 
-const newIPEmail = require("../email/templates/newIP.js");
+const new_IP_email = require("../email/templates/new_IP.js");
 
-async function generateNewIPToken(userid, email, IP) {
+async function generate_new_IP_token(userid, email, IP) {
   return new Promise(function (resolve, reject) {
     db.user.findOne({ userid: userid }).then((user) => {
       if (!user) {
@@ -13,38 +13,39 @@ async function generateNewIPToken(userid, email, IP) {
         // Add IP to userIPs array and set authorized to false.
         user.userIPs.push({
           ip: IP,
-          dateAdded: new Date(),
+          date_added: new Date(),
           authorized: false,
         });
-        user.save().then((updateduser) => {
+        user.save().then((updated_user) => {
           // Generate newIP token:
           token = jwt.sign(
             { userid: userid, ip: IP, type: "newIP" },
-            config.user.jwtnewipsecret
+            config.user.jwt_new_ip_secret
           );
-          newIPToken = new db.newIPToken({
+          new_IP_token = new db.new_IP_token({
             userid: userid,
             token: token,
             ip: IP,
             expired: false,
           });
           // Save newIP Token
-          newIPToken
+          new_IP_token
             .save()
-            .then((currentNewIPToken) => {
+            .then((currentnew_IP_token) => {
               // Send new IP email
-              newIPEmail
-                .sendNewIPEmail(
+              new_IP_email
+                .send_new_IP_email(
                   email,
                   config.fqdn +
                     "/auth/authorizeNewIP/" +
-                    currentNewIPToken.token,
+                    currentnew_IP_token.token,
                   IP
                 )
-                .then((emailInfo) => {});
-              return resolve(currentNewIPToken);
+                .then((email_info) => {});
+              return resolve(currentnew_IP_token);
             })
             .catch((err) => {
+              console.log(err);
               return reject("Error saving new IP token");
             });
         });
@@ -53,32 +54,32 @@ async function generateNewIPToken(userid, email, IP) {
   });
 }
 
-async function checkNewIPToken(userid, IP, token) {
+async function check_new_IP_token(userid, IP, token) {
   return new Promise(function (resolve, reject) {
-    db.newIPToken.findOne({ token: token }).then((newIPToken) => {
-      if (!newIPToken) {
+    db.new_IP_token.findOne({ token: token }).then((new_IP_token) => {
+      if (!new_IP_token) {
         return reject("No such valid token");
       }
-      if (newIPToken.expired) {
+      if (new_IP_token.expired) {
         return reject("Token is expired");
       } else {
         db.user.findOne({ userid: userid }).then((user) => {
           if (!user) {
             reject("No such user");
           } else {
-            db.newIPToken
+            db.new_IP_token
               .updateOne({ token: token }, { $set: { expired: true } })
-              .then((newIPToken) => {
+              .then((new_IP_token) => {
                 // Expire the token
-                for (let i = 0; i < user.userIPs.length; i++) {
+                user.userIPs.forEach((ip) => {
                   // Find the IP in the userIPs array and authorize it.
-                  if (user.userIPs[i].ip === IP) {
-                    user.userIPs[i].authorized = true;
-                    user.userIPs[i].dateAuthorized = new Date();
+                  if (ip.ip === IP) {
+                    ip.authorized = true;
+                    ip.date_authorized = new Date();
                   }
-                }
-                user.save().then((updateduser) => {
-                  resolve(updateduser);
+                });
+                user.save().then((updated_user) => {
+                  resolve(updated_user);
                 });
               });
           }
@@ -88,4 +89,4 @@ async function checkNewIPToken(userid, IP, token) {
   });
 }
 
-module.exports = { generateNewIPToken, checkNewIPToken };
+module.exports = { generate_new_IP_token, check_new_IP_token };

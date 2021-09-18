@@ -11,7 +11,7 @@ let transporter = mailer.createTransport({
   },
 });
 
-async function sendPasswordChangeConfirmationEmail(to) {
+async function send_password_change_confirmation_email(to) {
   return await transporter.sendMail({
     from: config.email.from,
     to: to,
@@ -24,4 +24,4 @@ async function sendPasswordChangeConfirmationEmail(to) {
   });
 }
 
-module.exports = { sendPasswordChangeConfirmationEmail };
+module.exports = { send_password_change_confirmation_email };

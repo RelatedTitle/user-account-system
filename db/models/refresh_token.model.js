@@ -1,10 +1,10 @@
 const mongoose = require("mongoose");
 
-const refreshTokenSchema = new mongoose.Schema({
+const refresh_token_schema = new mongoose.Schema({
   userid: Number,
   email: String,
   token: String,
   expired: Boolean,
 });
 
-module.exports = { refreshTokenSchema };
+module.exports = { refresh_token_schema };

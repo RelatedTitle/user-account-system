@@ -11,15 +11,15 @@ const FacebookStrategy = require("passport-facebook").Strategy;
 passport.use(
   new FacebookStrategy(
     {
-      clientID: config.user.facebookclientid,
-      clientSecret: config.user.facebookclientsecret,
+      clientID: config.user.facebook_client_id,
+      clientSecret: config.user.facebook_client_secret,
       callbackURL: config.fqdn + "/auth/facebook/callback",
       scope: ["public_profile", "email"],
       enableProof: true,
       passReqToCallback: true,
       profileFields: ["id", "emails", "name"],
     },
-    async function (request, accessToken, refreshToken, profile, done) {
+    async function (request, access_token, refresh_token, profile, done) {
       if (!profile.emails) {
         // User's email address(es) is(are) private or inaccessible for some other reason
         return done("Email address private or inaccessible", null);

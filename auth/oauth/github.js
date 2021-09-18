@@ -11,12 +11,12 @@ const GitHubStrategy = require("passport-github").Strategy;
 passport.use(
   new GitHubStrategy(
     {
-      clientID: config.user.githubclientid,
-      clientSecret: config.user.githubclientsecret,
+      clientID: config.user.github_client_id,
+      clientSecret: config.user.github_client_secret,
       callbackURL: config.fqdn + "/auth/github/callback",
       passReqToCallback: true,
     },
-    async function (request, accessToken, refreshToken, profile, done) {
+    async function (request, access_token, refresh_token, profile, done) {
       if (!profile.emails) {
         // User's email address(es) is(are) private or inaccessible for some other reason
         return done("Email address private or inaccessible", null);

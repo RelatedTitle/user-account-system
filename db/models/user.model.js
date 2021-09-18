@@ -1,18 +1,18 @@
 const mongoose = require("mongoose");
 
-const userSchema = new mongoose.Schema({
+const user_schema = new mongoose.Schema({
   userid: {
     type: Number,
     unique: true,
     sparse: true,
   },
   username: {
-    displayusername: {
+    display_username: {
       type: String,
       unique: true,
       sparse: true,
     },
-    realusername: {
+    real_username: {
       type: String,
       unique: true,
       sparse: true,
@@ -20,8 +20,8 @@ const userSchema = new mongoose.Schema({
   },
   usernamehistory: [
     {
-      displayusername: String,
-      realusername: String,
+      display_username: String,
+      real_username: String,
       date: Date,
     },
   ],
@@ -40,7 +40,7 @@ const userSchema = new mongoose.Schema({
       unique: true,
       sparse: true,
     },
-    emailtype: Number,
+    email_type: Number,
     provider: String,
     verified: Boolean,
   },
@@ -52,7 +52,7 @@ const userSchema = new mongoose.Schema({
         sparse: true,
       },
       date: Date,
-      emailtype: Number,
+      email_type: Number,
       provider: String,
       verified: Boolean,
     },
@@ -89,15 +89,16 @@ const userSchema = new mongoose.Schema({
     secret: String,
     active: Boolean,
   },
-  userIPs: 
-  [{
-    ip: String,
-    dateAdded: Date,
-    authorized: Boolean,
-    dateAuthorized: Date,
-  }],
+  userIPs: [
+    {
+      ip: String,
+      date_added: Date,
+      authorized: Boolean,
+      date_authorized: Date,
+    },
+  ],
   password: String,
-  creationDate: Date,
+  creation_date: Date,
 });
 
-module.exports = { userSchema };
+module.exports = { user_schema };

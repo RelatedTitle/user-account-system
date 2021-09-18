@@ -11,13 +11,13 @@ const DiscordStrategy = require("passport-discord").Strategy;
 passport.use(
   new DiscordStrategy(
     {
-      clientID: config.user.discordclientid,
-      clientSecret: config.user.discordclientsecret,
+      clientID: config.user.discord_client_id,
+      clientSecret: config.user.discord_client_secret,
       callbackURL: config.fqdn + "/auth/discord/callback",
       passReqToCallback: true,
       scope: ["identify", "email"],
     },
-    async function (request, accessToken, refreshToken, profile, done) {
+    async function (request, access_token, refresh_token, profile, done) {
       if (!profile.email) {
         // User's email address(es) is(are) private or inaccessible for some other reason
         return done("Email address private or inaccessible", null);
