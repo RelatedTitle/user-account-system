@@ -157,13 +157,12 @@ const disposabledomains = JSON.parse(
 function get_email_info(user_email) {
   email = user_email.toLowerCase();
   domain = email.match(/[^@]*$/g)[0];
-  realemail = email;
 
   // Cover your eyes on this one, trust me. Idk how to make it better since I can't really use switches in this case. I have an idea but it means I have to organize the provider list in a different way and I'm too lazy to do that.
   if (gmaildomains.includes(domain)) {
     provider = "Gmail";
     type = 1;
-    realemail = gmailsanitize(email, domain);
+    realemail = sanitize(email, domain);
   } else if (microsoftdomains.includes(domain)) {
     provider = "Microsoft";
     type = 1;
@@ -196,16 +195,30 @@ function get_email_info(user_email) {
     type = 0;
   }
 
+  realemail = sanitize(email, domain, provider);
+
   return { type, provider, domain, realemail };
 }
 
-// Function to sanitize gmail emails to prevent duplicates, tomato+avocado@gmail.com and t.o.m.a.t.o@googlemail.com are the same.
-function gmailsanitize(email, domain) {
-  emailusername = email.replace(domain, "");
+// Function to sanitize gmail emails to prevent duplicates, tomato+avocado@gmail.com and t.o.m.a.t.o@googlemail.com are the same. tomato@protonmail.com and tomato@pm.me are also the same.
+function sanitize(email, domain, provider) {
+  email_username = email.replace(domain, "");
+  let sanitized_email;
 
-  return (
-    emailusername.replace(/\+.*$/g, "").replace(/[\.@]/g, "") + "@gmail.com"
-  );
+  switch (provider) {
+    case "Gmail":
+      sanitized_email =
+        email_username.replace(/\+.*$/g, "").replace(/[\.@]/g, "") +
+        "@gmail.com";
+    case "Protonmail":
+      sanitized_email =
+        email_username.replace(/\+.*$/g, "").replace(/[\.@]/g, "") +
+        "@protonmail.com";
+    default:
+      sanitized_email = email;
+  }
+
+  return sanitized_email;
 }
 
 function get_oauth_email(profile, provider) {
@@ -228,7 +241,7 @@ function get_oauth_email(profile, provider) {
 }
 
 module.exports = {
-  gmailsanitize,
+  sanitize,
   get_email_info,
   get_oauth_email,
 };
