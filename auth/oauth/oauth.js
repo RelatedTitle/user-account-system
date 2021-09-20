@@ -61,10 +61,16 @@ function oauth(request, profile, provider) {
         }
         // Register a new user (also automatically verifies the user's email):
         register
-          .register_user(user_email, null, null, {
-            provider: provider,
-            data: profile,
-          })
+          .register_user(
+            user_email,
+            null,
+            null,
+            {
+              provider: provider,
+              data: profile,
+            },
+            request.ip
+          )
           .then((new_user) => {
             return resolve(new_user);
           })
