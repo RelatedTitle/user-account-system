@@ -154,16 +154,16 @@ const disposabledomains = JSON.parse(
   fs.readFileSync("./email/disposabledomains.json", "utf8")
 );
 
-async function get_email_info(userEmail) {
-  email = await userEmail.toLowerCase();
-  domain = await email.match(/[^@]*$/g)[0];
+function get_email_info(user_email) {
+  email = user_email.toLowerCase();
+  domain = email.match(/[^@]*$/g)[0];
   realemail = email;
 
   // Cover your eyes on this one, trust me. Idk how to make it better since I can't really use switches in this case. I have an idea but it means I have to organize the provider list in a different way and I'm too lazy to do that.
   if (gmaildomains.includes(domain)) {
     provider = "Gmail";
     type = 1;
-    realemail = await gmailsanitize(email, domain);
+    realemail = gmailsanitize(email, domain);
   } else if (microsoftdomains.includes(domain)) {
     provider = "Microsoft";
     type = 1;
@@ -200,16 +200,35 @@ async function get_email_info(userEmail) {
 }
 
 // Function to sanitize gmail emails to prevent duplicates, tomato+avocado@gmail.com and t.o.m.a.t.o@googlemail.com are the same.
-async function gmailsanitize(email, domain) {
-  emailusername = await email.replace(domain, "");
+function gmailsanitize(email, domain) {
+  emailusername = email.replace(domain, "");
 
   return (
-    (await emailusername.replace(/\+.*$/g, "").replace(/[\.@]/g, "")) +
-    "@gmail.com"
+    emailusername.replace(/\+.*$/g, "").replace(/[\.@]/g, "") + "@gmail.com"
   );
+}
+
+function get_oauth_email(profile, provider) {
+  let email = "";
+  switch (provider) {
+    case "Google":
+      email = profile.email;
+      break;
+    case "Discord":
+      email = profile.email;
+      break;
+    case "GitHub":
+      email = profile.emails[0].value;
+      break;
+    case "Facebook":
+      email = profile.emails[0].value;
+      break;
+  }
+  return email;
 }
 
 module.exports = {
   gmailsanitize,
   get_email_info,
+  get_oauth_email,
 };

@@ -13,19 +13,19 @@ const generateuserid = customAlphabet(
 );
 
 async function register_user(
-  userEmail,
-  userUsername,
-  userPassword,
-  oauthData,
+  user_email,
+  user_username,
+  user_password,
+  oauth_data,
   IP
 ) {
-  let email_info = await email.get_email_info(userEmail);
+  let email_info = await email.get_email_info(user_email);
   let userid = generateuserid();
   let currentDate = new Date();
 
-  if (!userUsername) {
+  if (!user_username) {
     // If no username is provided, use userid as username
-    userUsername = userid.toString();
+    user_username = userid.toString();
   }
 
   return new Promise(function (resolve, reject) {
@@ -33,13 +33,13 @@ async function register_user(
     // Generates salt with defined salt rounds in config:
     bcrypt.genSalt(config.user.bcrypt_salt_rounds, function (err, salt) {
       // Hashes password:
-      bcrypt.hash(userPassword, salt, function (err, hashed_password) {
+      bcrypt.hash(user_password, salt, function (err, hashed_password) {
         //Stores user in DB:
-        let newUser = new db.user({
+        let new_user = new db.user({
           userid: userid,
           username: {
-            display_username: userUsername,
-            real_username: userUsername?.toLowerCase(),
+            display_username: user_username,
+            real_username: user_username?.toLowerCase(),
           },
           email: {
             email: email_info.realemail,
@@ -49,40 +49,35 @@ async function register_user(
           creation_date: currentDate,
           oauth: {},
         });
-        if (oauthData) {
-          switch (oauthData.provider) {
-            case "Google":
-              newUser.oauth.googleoauthid = oauthData.data.id;
-              newUser.email.verified = true;
-              break;
-            case "GitHub":
-              newUser.oauth.githuboauthid = oauthData.data.id;
-              newUser.email.verified = true;
-              break;
-            case "Discord":
-              newUser.oauth.discordoauthid = oauthData.data.id;
-              newUser.email.verified = oauthData.data.verified;
-              break;
-            case "Facebook":
-              newUser.oauth.facebookoauthid = oauthData.data.id;
-              newUser.email.verified = true;
-              break;
-            default:
-              break;
+        if (oauth_data) {
+          // If registering through an OAuth provider.
+          // If the provider is GitHub, we know for a fact that the email is verified since it is required to use OAuth. (https://docs.github.com/en/github/authenticating-to-github/keeping-your-account-and-data-secure/authorizing-oauth-apps)
+          // If the provider is Google, we know whether the email is verified or not by profile.email_verified.
+          // If the provider is Discord, we know whether the email is verified by profile.verified.
+          // If the provider is Facebook, we don't know whether the email is verified or not.
+          if (
+            oauth_data.data.email_verified ||
+            (oauth_data.provider == "Discord" && oauth_data.data.verified) ||
+            oauth_data.provider == "GitHub"
+          ) {
+            // User's email address is not verified and matches the one in the account they're linking (which is verified).
+            new_user.email.verified = true; // Verify the email address.
           }
-          newUser.account_connections.push({
-            provider: oauthData.provider,
-            data: oauthData.data,
+          new_user.oauth[`${oauth_data.provider.toLowerCase()}oauthid`] =
+            oauth_data.data.id;
+          new_user.account_connections.push({
+            provider: oauth_data.provider,
+            data: oauth_data.data,
           });
         }
         // Add registration IP as an authorized user IP:
-        newUser.userIPs.push({
+        new_user.userIPs.push({
           ip: IP,
           date_added: new Date(),
           authorized: true,
           date_authorized: new Date(),
         });
-        newUser
+        new_user
           .save()
           .then((registered_user) => {
             if (config.user.captchaenabled) {
@@ -102,57 +97,34 @@ async function register_user(
                   registered_user.email.email
                 )
                 .then((email_verification_token) => {
-                  console.log(
-                    "Created user " +
-                      registered_user.userid +
-                      ", username " +
-                      registered_user.username.display_username +
-                      " email " +
-                      registered_user.email.email +
-                      "."
-                  );
+                  // Email verification token sent.
                 });
               resolve(registered_user);
             } else {
-              console.log(
-                "Created user " +
-                  registered_user.userid +
-                  ", username " +
-                  registered_user.username.display_username +
-                  " email " +
-                  registered_user.email.email +
-                  "."
-              );
+              // User registered without sending an email verification token.
               resolve(registered_user);
             }
           })
           .catch((err) => {
-            console.log(err);
-            console.log("Failed to register user.");
             if (err.code === 11000) {
-              console.log(email_info.realemail);
               if (
                 Object.keys(err.keyValue) == "email.email" ||
                 Object.keys(err.keyValue) == "emailhistory.email"
               ) {
                 // Already existing current or past email
-                console.log("Email already exists");
                 reject("Email already exists");
               } else if (
                 Object.keys(err.keyValue) == "username.display_username" ||
                 Object.keys(err.keyValue) == "username.real_username"
               ) {
                 // Already existing username
-                console.log("Username already exists");
                 reject("Username already exists");
               } else {
                 // Something else is not unique when it is supposed to be
-                console.log(err);
                 reject("Unknown error");
               }
             } else {
               // Some other error
-              console.log(err);
               reject("Unknown error");
             }
           });

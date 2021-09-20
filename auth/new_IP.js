@@ -2,7 +2,8 @@ const config = require("../config.js");
 const db = require("../db/db.js");
 const jwt = require("jsonwebtoken");
 
-const new_IP_email = require("../email/templates/new_IP.js");
+const send_new_IP_email =
+  require("../email/templates/new_IP.js").send_new_IP_email;
 
 async function generate_new_IP_token(userid, email, IP) {
   return new Promise(function (resolve, reject) {
@@ -31,21 +32,18 @@ async function generate_new_IP_token(userid, email, IP) {
           // Save newIP Token
           new_IP_token
             .save()
-            .then((currentnew_IP_token) => {
+            .then((current_new_IP_token) => {
               // Send new IP email
-              new_IP_email
-                .send_new_IP_email(
-                  email,
-                  config.fqdn +
-                    "/auth/authorizeNewIP/" +
-                    currentnew_IP_token.token,
-                  IP
-                )
-                .then((email_info) => {});
-              return resolve(currentnew_IP_token);
+              send_new_IP_email(
+                email,
+                config.fqdn +
+                  "/auth/authorizeNewIP/" +
+                  current_new_IP_token.token,
+                IP
+              ).then((email_info) => {});
+              return resolve(current_new_IP_token);
             })
             .catch((err) => {
-              console.log(err);
               return reject("Error saving new IP token");
             });
         });

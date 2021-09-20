@@ -11,7 +11,7 @@ let transporter = mailer.createTransport({
   },
 });
 
-async function send_password_reset_email(to, password_resetURL) {
+async function send_password_reset_email(to, password_reset_URL) {
   return await transporter.sendMail({
     from: config.email.from,
     to: to,
@@ -19,7 +19,7 @@ async function send_password_reset_email(to, password_resetURL) {
     text: `Someone (hopefully you) has requested a password request for your ${config.servicename} account. 
     Please click the following link to change your password.
         
-        ${password_resetURL}
+        ${password_reset_URL}
 
         (If you didn't request a password reset, you can safely ignore this email)
         `,

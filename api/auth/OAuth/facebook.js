@@ -4,10 +4,12 @@ const issue_jwt = require("../../../auth/issue_jwt.js");
 const passport = require("passport");
 
 // NOTE: Using req.user.userid instead of req.user._id is NOT a bug.
-router.get(
-  "/auth/facebook",
-  passport.authenticate("facebook", { scope: ["public_profile", "email"] })
-);
+router.get("/auth/facebook", (req, res) => {
+  passport.authenticate("facebook", {
+    scope: ["public_profile", "email"],
+    state: req.query.token,
+  })(req, res);
+});
 
 router.get(
   "/auth/facebook/callback",

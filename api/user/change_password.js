@@ -4,7 +4,8 @@ const db = require("../../db/db.js");
 const passport = require("passport");
 const config = require("../../config.js");
 const bcrypt = require("bcrypt");
-const password_reset_confirmation_email = require("../../email/templates/password_reset_confirmation.js");
+const send_password_change_confirmation_email =
+  require("../../email/templates/password_reset_confirmation.js").send_password_change_confirmation_email;
 
 router.post(
   "/user/change_password",
@@ -37,15 +38,15 @@ router.post(
                     { userid: req.user._id },
                     { $set: { password: hashed_password } }
                   )
-                  .then((newUser) => {
-                    password_reset_confirmation_email
-                      .send_password_change_confirmation_email(user.email)
-                      .then((email_info) => {
+                  .then((new_user) => {
+                    send_password_change_confirmation_email(user.email).then(
+                      (email_info) => {
                         return res.status(200).json({
                           error: false,
                           message: "Password changed successfully",
                         });
-                      });
+                      }
+                    );
                   })
                   .catch((err) => {
                     return res.status(500).json({

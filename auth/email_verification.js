@@ -2,7 +2,8 @@ const config = require("../config.js");
 const jwt = require("jsonwebtoken");
 const db = require("../db/db.js");
 const email = require("../email/email.js");
-const email_verification_email = require("../email/templates/email_verification.js");
+const send_email_verification_email =
+  require("../email/templates/email_verification.js").send_email_verification_email;
 
 async function generate_email_verification_token(userid, email) {
   return new Promise(function (resolve, reject) {
@@ -24,20 +25,18 @@ async function generate_email_verification_token(userid, email) {
           expired: false,
         });
         email_verification_token.save().then((new_email_verification_token) => {
-          email_verification_email
-            .send_email_verification_email(
-              email,
-              config.fqdn + "/auth/verifyEmail/" + token // Not the real URL for now, when there is a frontend, this will point to that. The frontend will then send a request to the endpoint with the token.
-            )
-            .then((email_info) => {});
+          send_email_verification_email(
+            email,
+            config.fqdn + "/auth/verifyEmail/" + token // Not the real URL for now, when there is a frontend, this will point to that. The frontend will then send a request to the endpoint with the token.
+          ).then((email_info) => {});
           return resolve();
         });
       });
   });
 }
 
-async function check_email_verification_token(userid, useremail, token) {
-  email_info = await email.get_email_info(useremail);
+async function check_email_verification_token(userid, user_email, token) {
+  email_info = await email.get_email_info(user_email);
   return new Promise(function (resolve, reject) {
     db.email_verification_token
       .findOne({ token: token })
@@ -51,18 +50,18 @@ async function check_email_verification_token(userid, useremail, token) {
           db.email_verification_token
             .updateOne({ token: token }, { $set: { expired: true } })
             .then((email_verification_token) => {
-              useremail = email_info.realemail;
+              user_email = email_info.realemail;
               db.user
                 .updateOne(
                   { userid: userid },
                   {
                     $set: {
                       "email.verified": true,
-                      "email.email": useremail,
+                      "email.email": user_email,
                     },
                     $push: {
                       emailhistory: {
-                        email: useremail,
+                        email: user_email,
                         date: new Date(),
                         verified: true,
                       },
@@ -85,7 +84,7 @@ async function check_email_verification_token(userid, useremail, token) {
                         // If it is not verified, remove email from the unverified account and add it to the verified one.
                         db.user
                           .updateOne(
-                            { "email.email": useremail },
+                            { "email.email": user_email },
                             {
                               $set: { "email.email": undefined },
                               $unset: { emailhistory: [] },
@@ -98,11 +97,11 @@ async function check_email_verification_token(userid, useremail, token) {
                                 {
                                   $set: {
                                     "email.verified": true,
-                                    "email.email": useremail,
+                                    "email.email": user_email,
                                   },
                                   $push: {
                                     emailhistory: {
-                                      email: useremail,
+                                      email: user_email,
                                       date: new Date(),
                                       verified: true,
                                     },
@@ -112,9 +111,7 @@ async function check_email_verification_token(userid, useremail, token) {
                               .then((user) => {
                                 return resolve(user);
                               })
-                              .catch((err) => {
-                                console.log("Err");
-                              });
+                              .catch((err) => {});
                           });
                       }
                     });
@@ -123,9 +120,7 @@ async function check_email_verification_token(userid, useremail, token) {
                   }
                 });
             })
-            .catch((err) => {
-              console.log("ERR: " + err);
-            });
+            .catch((err) => {});
         }
       })
       .catch((err) => {
