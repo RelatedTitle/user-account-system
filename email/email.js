@@ -210,12 +210,15 @@ function sanitize(email, domain, provider) {
       sanitized_email =
         email_username.replace(/\+.*$/g, "").replace(/[\.@]/g, "") +
         "@gmail.com";
+      break;
     case "Protonmail":
       sanitized_email =
         email_username.replace(/\+.*$/g, "").replace(/[\.@]/g, "") +
         "@protonmail.com";
+      break;
     default:
       sanitized_email = email;
+      break;
   }
 
   return sanitized_email;
