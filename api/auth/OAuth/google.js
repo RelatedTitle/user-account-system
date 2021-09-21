@@ -13,7 +13,7 @@ router.get("/auth/google", (req, res) => {
 
 router.get(
   "/auth/google/callback",
-  passport.authenticate("google", { session: false }),
+  passport.authenticate("google", { failWithError: true, session: false }),
   (req, res) => {
     issue_jwt
       .issue_refresh_jwt(req.user.userid, req.user.email.email)
@@ -24,6 +24,10 @@ router.get(
           refresh_token: tokens.refresh_token,
         });
       });
+  },
+  function (err, req, res, next) {
+    // Handle error
+    return res.status(401).send({ error: true, message: err });
   }
 );
 

@@ -13,7 +13,7 @@ router.get("/auth/github", (req, res) => {
 
 router.get(
   "/auth/github/callback",
-  passport.authenticate("github", { session: false }),
+  passport.authenticate("github", { failWithError: true, session: false }),
   (req, res) => {
     issue_jwt
       .issue_refresh_jwt(req.user.userid, req.user.email.email)
@@ -24,6 +24,10 @@ router.get(
           refresh_token: tokens.refresh_token,
         });
       });
+  },
+  function (err, req, res, next) {
+    // Handle error
+    return res.status(401).send({ error: true, message: err });
   }
 );
 

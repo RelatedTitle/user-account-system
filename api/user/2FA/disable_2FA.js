@@ -40,7 +40,7 @@ router.post(
   },
   function (err, req, res, next) {
     // Handle error
-    return res.status(401).send({ error: false, message: err });
+    return res.status(401).send({ error: true, message: err });
   }
 );
 

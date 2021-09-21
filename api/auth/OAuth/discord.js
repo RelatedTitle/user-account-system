@@ -13,7 +13,7 @@ router.get("/auth/discord", (req, res) => {
 
 router.get(
   "/auth/discord/callback",
-  passport.authenticate("discord", { session: false }),
+  passport.authenticate("discord", { failWithError: true, session: false }),
   (req, res) => {
     issue_jwt
       .issue_refresh_jwt(req.user.userid, req.user.email.email)
@@ -24,6 +24,10 @@ router.get(
           refresh_token: tokens.refresh_token,
         });
       });
+  },
+  function (err, req, res, next) {
+    // Handle error
+    return res.status(401).send({ error: true, message: err });
   }
 );
 

@@ -35,8 +35,8 @@ async function generate_email_verification_token(userid, email) {
   });
 }
 
-async function check_email_verification_token(userid, user_email, token) {
-  email_info = await email.get_email_info(user_email);
+function check_email_verification_token(userid, user_email, token) {
+  email_info = email.get_email_info(user_email);
   return new Promise(function (resolve, reject) {
     db.email_verification_token
       .findOne({ token: token })
@@ -46,82 +46,79 @@ async function check_email_verification_token(userid, user_email, token) {
         }
         if (email_verification_token.expired) {
           return reject("Token is expired");
-        } else {
-          db.email_verification_token
-            .updateOne({ token: token }, { $set: { expired: true } })
-            .then((email_verification_token) => {
-              user_email = email_info.realemail;
-              db.user
-                .updateOne(
-                  { userid: userid },
-                  {
-                    $set: {
-                      "email.verified": true,
-                      "email.email": user_email,
+        }
+        db.email_verification_token
+          .updateOne({ token: token }, { $set: { expired: true } })
+          .then((email_verification_token) => {
+            user_email = email_info.realemail;
+            db.user
+              .updateOne(
+                { userid: userid },
+                {
+                  $set: {
+                    "email.verified": true,
+                    "email.email": user_email,
+                  },
+                  $push: {
+                    emailhistory: {
+                      email: user_email,
+                      date: new Date(),
+                      verified: true,
                     },
-                    $push: {
-                      emailhistory: {
-                        email: user_email,
-                        date: new Date(),
-                        verified: true,
-                      },
-                    },
-                  }
-                )
-                .then((user) => {
-                  return resolve(user);
-                })
-                .catch((err) => {
-                  if (err.code === 11000) {
-                    // If the error indicates that the email is a duplicate (Another account registered with that email)
-                    db.user.findOne({ "email.email": email }).then((user) => {
-                      // Check if that account's email is verified
-                      if (user.email.verified) {
-                        return reject(
-                          "Email address already in use by another account"
-                        );
-                      } else {
-                        // If it is not verified, remove email from the unverified account and add it to the verified one.
+                  },
+                }
+              )
+              .then((user) => {
+                return resolve(user);
+              })
+              .catch((err) => {
+                if (err.code === 11000) {
+                  // If the error indicates that the email is a duplicate (Another account registered with that email)
+                  db.user.findOne({ "email.email": email }).then((user) => {
+                    // Check if that account's email is verified
+                    if (user.email.verified) {
+                      return reject(
+                        "Email address already in use by another account"
+                      );
+                    }
+                    // If it is not verified, remove email from the unverified account and add it to the verified one.
+                    db.user
+                      .updateOne(
+                        { "email.email": user_email },
+                        {
+                          $set: { "email.email": undefined },
+                          $unset: { emailhistory: [] },
+                        }
+                      )
+                      .then((unverifiedUser) => {
                         db.user
                           .updateOne(
-                            { "email.email": user_email },
+                            { userid: userid },
                             {
-                              $set: { "email.email": undefined },
-                              $unset: { emailhistory: [] },
+                              $set: {
+                                "email.verified": true,
+                                "email.email": user_email,
+                              },
+                              $push: {
+                                emailhistory: {
+                                  email: user_email,
+                                  date: new Date(),
+                                  verified: true,
+                                },
+                              },
                             }
                           )
-                          .then((unverifiedUser) => {
-                            db.user
-                              .updateOne(
-                                { userid: userid },
-                                {
-                                  $set: {
-                                    "email.verified": true,
-                                    "email.email": user_email,
-                                  },
-                                  $push: {
-                                    emailhistory: {
-                                      email: user_email,
-                                      date: new Date(),
-                                      verified: true,
-                                    },
-                                  },
-                                }
-                              )
-                              .then((user) => {
-                                return resolve(user);
-                              })
-                              .catch((err) => {});
-                          });
-                      }
-                    });
-                  } else {
-                    return reject(err);
-                  }
-                });
-            })
-            .catch((err) => {});
-        }
+                          .then((user) => {
+                            return resolve(user);
+                          })
+                          .catch((err) => {});
+                      });
+                  });
+                }
+                return reject(err);
+              });
+          })
+          .catch((err) => {});
       })
       .catch((err) => {
         return reject(err);

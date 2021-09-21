@@ -19,7 +19,7 @@ async function register_user(
   oauth_data,
   IP
 ) {
-  let email_info = await email.get_email_info(user_email);
+  let email_info = email.get_email_info(user_email);
   let userid = generateuserid();
   let currentDate = new Date();
 
