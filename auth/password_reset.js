@@ -40,7 +40,7 @@ async function generate_password_reset_token(email) {
                 send_password_reset_email(
                   user_email,
                   config.fqdn +
-                    "/auth/resetPassword/" +
+                    "/auth/reset_password/" +
                     current_password_reset_token.token
                 ).then((email_info) => {});
                 resolve(current_password_reset_token);

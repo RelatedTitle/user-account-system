@@ -27,7 +27,7 @@ async function generate_email_verification_token(userid, email) {
         email_verification_token.save().then((new_email_verification_token) => {
           send_email_verification_email(
             email,
-            config.fqdn + "/auth/verifyEmail/" + token // Not the real URL for now, when there is a frontend, this will point to that. The frontend will then send a request to the endpoint with the token.
+            config.fqdn + "/auth/verify_email/" + token // Not the real URL for now, when there is a frontend, this will point to that. The frontend will then send a request to the endpoint with the token.
           ).then((email_info) => {});
           return resolve();
         });

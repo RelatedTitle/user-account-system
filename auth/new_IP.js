@@ -37,7 +37,7 @@ async function generate_new_IP_token(userid, email, IP) {
               send_new_IP_email(
                 email,
                 config.fqdn +
-                  "/auth/authorizeNewIP/" +
+                  "/auth/authorize_new_IP/" +
                   current_new_IP_token.token,
                 IP
               ).then((email_info) => {});
