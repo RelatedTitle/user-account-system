@@ -93,7 +93,7 @@ function oauth(request, profile, provider) {
             return resolve(new_user);
           })
           .catch((err) => {
-            if (err === "Email already exists") {
+            if (err == "Email already exists") {
               // If user account already exists, link it to their OAuth account (also automatically verifies the user's email if necessary)
               link_account_email(profile, provider)
                 .then((linked_user) => {
@@ -102,9 +102,10 @@ function oauth(request, profile, provider) {
                 .catch((err) => {
                   return reject("Error");
                 });
+            } else {
+              // Some other error
+              return reject("Unknown Error");
             }
-            // Some other error
-            return reject("Unknown Error");
           });
       });
   });
