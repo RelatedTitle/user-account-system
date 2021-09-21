@@ -2,7 +2,7 @@ const passport = require("passport");
 const config = require("../../config.js");
 const oauth = require("./oauth.js");
 
-const GitHubStrategy = require("passport-github").Strategy;
+const GitHubStrategy = require("passport-github2").Strategy;
 
 // Github Auth:
 
