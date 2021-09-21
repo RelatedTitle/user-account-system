@@ -99,10 +99,10 @@ async function register_user(
                 .then((email_verification_token) => {
                   // Email verification token sent.
                 });
-              resolve(registered_user);
+              return resolve(registered_user);
             } else {
               // User registered without sending an email verification token.
-              resolve(registered_user);
+              return resolve(registered_user);
             }
           })
           .catch((err) => {
@@ -112,20 +112,31 @@ async function register_user(
                 Object.keys(err.keyValue) == "emailhistory.email"
               ) {
                 // Already existing current or past email
-                reject("Email already exists");
+                return reject("Email already exists");
               } else if (
                 Object.keys(err.keyValue) == "username.display_username" ||
                 Object.keys(err.keyValue) == "username.real_username"
               ) {
                 // Already existing username
-                reject("Username already exists");
+                if (oauth_data) {
+                  // If registering through an OAuth provider, recursively call register_user without providing a username (so it uses the userid).
+                  register_user(user_email, null, null, oauth_data, IP)
+                    .then((registered_user) => {
+                      return resolve(registered_user);
+                    })
+                    .catch((err) => {
+                      return reject(err);
+                    });
+                } else {
+                  return reject("Username already exists");
+                }
               } else {
                 // Something else is not unique when it is supposed to be
-                reject("Unknown error");
+                return reject("Unknown error");
               }
             } else {
               // Some other error
-              reject("Unknown error");
+              return reject("Unknown error");
             }
           });
       });

@@ -3,8 +3,28 @@ const config = require("../../config.js");
 const db = require("../../db/db.js");
 const email = require("../../email/email.js");
 const register = require("../register.js");
+const auth = require("../auth.js");
 const link_account = require("./link_account.js").link_account;
 const link_account_email = require("./link_account.js").link_account_email;
+
+function get_oauth_username(profile, provider) {
+  let username = "";
+  switch (provider) {
+    case "Google":
+      username = profile.displayName;
+      break;
+    case "Discord":
+      username = profile.username;
+      break;
+    case "GitHub":
+      username = profile.username;
+      break;
+    case "Facebook":
+      username = undefined; // Idk
+      break;
+  }
+  return username;
+}
 
 function oauth(request, profile, provider) {
   return new Promise((resolve, reject) => {
@@ -63,7 +83,7 @@ function oauth(request, profile, provider) {
         register
           .register_user(
             user_email,
-            null,
+            get_oauth_username(profile, provider),
             null,
             {
               provider: provider,
