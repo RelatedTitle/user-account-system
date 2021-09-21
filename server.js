@@ -52,6 +52,10 @@ config.ratelimits.forEach((ratelimit) => {
     rateLimit({
       windowMs: ratelimit.window,
       max: ratelimit.maxrequests,
+      message: {
+        error: true,
+        message: "Too many requests, please try again later.",
+      },
     })
   );
 });
