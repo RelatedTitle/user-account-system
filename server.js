@@ -105,6 +105,7 @@ app.use(activate_2FA);
 app.use(disable_2FA);
 app.use(request_2FA_secret);
 
+// ERROR HANDLING:
 app.use(error_handler);
 app.use(function (req, res, next) {
   res.status(404).send({ error: true, message: "Not found." });
