@@ -10,10 +10,10 @@ const JWTStrategy = require("passport-jwt").Strategy;
 
 // OAuth:
 
-require("./OAuth/google.js");
-require("./OAuth/github.js");
-require("./OAuth/facebook.js");
-require("./OAuth/discord.js");
+require("./oauth/google.js");
+require("./oauth/github.js");
+require("./oauth/facebook.js");
+require("./oauth/discord.js");
 
 const ExtractJWT = require("passport-jwt");
 
