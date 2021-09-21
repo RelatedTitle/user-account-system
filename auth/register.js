@@ -80,13 +80,6 @@ async function register_user(
         new_user
           .save()
           .then((registered_user) => {
-            if (config.user.captchaenabled) {
-              trustscore.trustAction(
-                registered_user.userid,
-                "completedCaptcha",
-                { captcha: "User registration captcha" }
-              );
-            }
             // Created user successfully
 
             // Send email verification token (if not verified already):
@@ -100,10 +93,9 @@ async function register_user(
                   // Email verification token sent.
                 });
               return resolve(registered_user);
-            } else {
-              // User registered without sending an email verification token.
-              return resolve(registered_user);
             }
+            // User registered without sending an email verification token.
+            return resolve(registered_user);
           })
           .catch((err) => {
             if (err.code === 11000) {
@@ -113,7 +105,8 @@ async function register_user(
               ) {
                 // Already existing current or past email
                 return reject("Email already exists");
-              } else if (
+              }
+              if (
                 Object.keys(err.keyValue) == "username.display_username" ||
                 Object.keys(err.keyValue) == "username.real_username"
               ) {
@@ -130,10 +123,8 @@ async function register_user(
                 } else {
                   return reject("Username already exists");
                 }
-              } else {
-                // Something else is not unique when it is supposed to be
-                return reject("Unknown error");
               }
+              // Something else is not unique when it is supposed to be
             } else {
               // Some other error
               return reject("Unknown error");

@@ -60,12 +60,10 @@ function oauth(request, profile, provider) {
                   return resolve(linked_user);
                 })
                 .catch((err) => {
-                  console.log(`1: ${err}`);
                   return reject("Error");
                 });
             })
             .catch((err) => {
-              console.log(`2: ${err}`);
               return reject("Error");
             });
         }
@@ -102,7 +100,6 @@ function oauth(request, profile, provider) {
                   return resolve(linked_user);
                 })
                 .catch((err) => {
-                  console.log(`3: ${err}`);
                   return reject("Error");
                 });
             }

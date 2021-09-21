@@ -24,10 +24,6 @@ router.get(
           refresh_token: tokens.refresh_token,
         });
       });
-  },
-  function (err, req, res, next) {
-    // Handle error
-    return res.status(401).send({ error: true, message: err.message });
   }
 );
 
