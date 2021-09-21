@@ -5,7 +5,7 @@ const config = require("../../config.js");
 const issue_jwt = require("../../auth/issue_jwt.js");
 
 // MIDDLEWARE:
-const check_captcha = require("../middlewares/captcha.js");
+const check_captcha = require("../middleware/captcha.js");
 
 router.post("/auth/register", check_captcha, async (req, res) => {
   if (!req.body.email || !req.body.username || !req.body.password) {

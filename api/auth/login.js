@@ -6,7 +6,7 @@ const new_IP = require("../../auth/new_IP.js");
 const otp = require("otplib");
 
 // MIDDLEWARE:
-const check_captcha = require("../middlewares/captcha.js");
+const check_captcha = require("../middleware/captcha.js");
 
 router.post("/auth/login", check_captcha, (req, res, next) => {
   passport.authenticate("login", async (err, user, info) => {
@@ -70,7 +70,6 @@ router.post("/auth/login", check_captcha, (req, res, next) => {
           });
       });
     } catch (err) {
-      console.log(err);
       return res.status(500).json({ error: true, message: "Error" });
     }
   })(req, res, next);

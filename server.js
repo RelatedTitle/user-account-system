@@ -27,6 +27,7 @@ const express = require("express");
 const passport = require("passport");
 const methodOverride = require("method-override");
 const rateLimit = require("express-rate-limit");
+const error_handler = require("./api/middleware/error_handler.js");
 
 require("./auth/auth.js");
 
@@ -41,8 +42,6 @@ app.use(passport.initialize());
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(methodOverride("_method"));
-
-app.listen(80);
 
 // RATE LIMITING:
 
@@ -105,6 +104,13 @@ const request_2FA_secret = require("./api/user/2FA/request_2FA_secret.js");
 app.use(activate_2FA);
 app.use(disable_2FA);
 app.use(request_2FA_secret);
+
+app.use(error_handler);
+app.use(function (req, res, next) {
+  res.status(404).send({ error: true, message: "Not found." });
+});
+
+app.listen(80);
 
 const download = (url, path, callback) => {
   request.head(url, (err, res, body) => {

@@ -27,7 +27,7 @@ router.get(
   },
   function (err, req, res, next) {
     // Handle error
-    return res.status(401).send({ error: true, message: err });
+    return res.status(err.status).send({ error: true, message: err.message });
   }
 );
 
