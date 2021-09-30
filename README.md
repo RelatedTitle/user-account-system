@@ -12,7 +12,7 @@ The purpose of this project is to make implementing auth in my future projects e
 
 ### Stack:
 * NodeJS
-* MongoDB
+* PostgreSQL
 * Express
 * Passport
 
@@ -21,7 +21,6 @@ The purpose of this project is to make implementing auth in my future projects e
 * Uses **CAPTCHA** to secure endpoints. Currently supports:
 	* [hCaptcha](https://www.hcaptcha.com/)
 	* [reCAPTCHA](https://www.google.com/recaptcha/about/)
-* **Trustscore** system for verifying that accounts aren't bots/malicious.
 * **OAuth** support for the following providers:
 	* Discord
 	* Facebook
@@ -33,3 +32,6 @@ The purpose of this project is to make implementing auth in my future projects e
 * Ability for users to change their email and password.
 * Adding new authenticated routes is easy.
 * 2FA Support
+* Partial support for user avatars, currently using the user's OAuth provider account's avatar (if registering through an OAuth provider) or their [Gravatar](https://en.gravatar.com/) avatar (if they have one linked to their email address). Avatars can be stored:
+	* Locally
+	* ~~Amazon S3~~ (COMING SOON)
