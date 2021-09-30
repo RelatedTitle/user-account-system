@@ -105,6 +105,10 @@ app.use(activate_2FA);
 app.use(disable_2FA);
 app.use(request_2FA_secret);
 
+// Static files
+
+app.use(express.static("content"));
+
 // ERROR HANDLING:
 app.use(error_handler);
 app.use(function (req, res, next) {

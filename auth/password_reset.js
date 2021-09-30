@@ -13,43 +13,42 @@ const send_password_change_confirmation_email =
 async function generate_password_reset_token(email) {
   user_email = email.toLowerCase();
   return new Promise(function (resolve, reject) {
-    db.user.findOne({ "email.email": user_email }).then((user) => {
+    db.user.findOne({ where: { email: user_email } }).then((user) => {
       if (!user) {
-        send_password_reset_email_no_user(user_email).then((email_info) => {});
+        send_password_reset_email_no_user(user_email);
         return reject("No such user");
       } else {
         // Expire previous tokens:
         db.password_reset_token
-          .updateMany(
-            { email: user_email, expired: false },
-            { $set: { expired: true } }
+          .update(
+            { expired: true },
+            { where: { email: user_email, expired: false } }
           )
-          .then((tokens) => {
+          .then(() => {
             token = jwt.sign(
               { email: user_email, type: "password_reset" },
               config.user.jwt_password_reset_secret
             );
-            password_reset_token = new db.password_reset_token({
-              email: user_email,
-              token: token,
-              expired: false,
-            });
-            password_reset_token
-              .save()
+            db.password_reset_token
+              .create({
+                email: user_email,
+                token: token,
+                expired: false,
+              })
               .then((current_password_reset_token) => {
                 send_password_reset_email(
                   user_email,
                   config.fqdn +
                     "/auth/reset_password/" +
                     current_password_reset_token.token
-                ).then((email_info) => {});
+                );
                 resolve(current_password_reset_token);
               })
-              .catch((err) => {
+              .catch(() => {
                 return reject("Error saving password reset token");
               });
           })
-          .catch((err) => {
+          .catch(() => {
             return reject("Error expiring previous tokens");
           });
       }
@@ -60,7 +59,7 @@ async function generate_password_reset_token(email) {
 async function check_password_reset_token(email, password, token) {
   return new Promise(function (resolve, reject) {
     db.passwordResetToken
-      .findOne({ token: token })
+      .findOne({ where: { token: token } })
       .then((passwordResetToken) => {
         if (!passwordResetToken) {
           return reject("No such valid token");
@@ -70,7 +69,7 @@ async function check_password_reset_token(email, password, token) {
             return reject("Token is expired");
           } else {
             db.user
-              .findOne({ "email.email": email })
+              .findOne({ where: { email: email } })
               .then((user) => {
                 if (!user) {
                   reject("No such user");
@@ -80,11 +79,8 @@ async function check_password_reset_token(email, password, token) {
                       reject("Password cannot be the same");
                     } else {
                       db.passwordResetToken
-                        .updateOne(
-                          { token: token },
-                          { $set: { expired: true } }
-                        )
-                        .then((passwordResetToken) => {
+                        .update({ expired: true }, { where: { token: token } })
+                        .then(() => {
                           bcrypt.genSalt(
                             config.user.bcrypt_salt_rounds,
                             function (err, salt) {
@@ -98,24 +94,23 @@ async function check_password_reset_token(email, password, token) {
                                     .save()
                                     .then((user) => {
                                       send_password_change_confirmation_email(
-                                        user.email.email
-                                      ).then((email_info) => {});
+                                        user.email
+                                      );
                                       return resolve(user);
                                     })
-                                    .catch((err) => {
+                                    .catch(() => {
                                       return reject("Password hashing error");
                                     });
                                 }
                               );
                             }
                           );
-                        })
-                        .catch((err) => {});
+                        });
                     }
                   });
                 }
               })
-              .catch((err) => {
+              .catch(() => {
                 return reject("Password error");
               });
           }
@@ -123,7 +118,7 @@ async function check_password_reset_token(email, password, token) {
           return reject("Token does not match user");
         }
       })
-      .catch((err) => {
+      .catch(() => {
         return reject("Unknown Error");
       });
   });

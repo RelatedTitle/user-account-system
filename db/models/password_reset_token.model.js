@@ -1,10 +1,15 @@
-const mongoose = require("mongoose");
+const { Sequelize, DataTypes } = require("sequelize");
+const sequelize = require("../db_connection");
 
-const password_reset_token_schema = new mongoose.Schema({
-  userid: Number,
-  email: String,
-  token: String,
-  expired: Boolean,
+const password_reset_token = sequelize.define("password_reset_token", {
+  uuid: {
+    type: DataTypes.UUID,
+    defaultValue: Sequelize.UUIDV4,
+    primaryKey: true,
+  },
+  email: { type: DataTypes.STRING },
+  token: { type: DataTypes.STRING },
+  expired: { type: DataTypes.BOOLEAN },
 });
 
-module.exports = { password_reset_token_schema };
+module.exports = password_reset_token;

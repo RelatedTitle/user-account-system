@@ -7,7 +7,7 @@ const jwt = require("jsonwebtoken");
 
 router.post("/auth/refresh_token", async (req, res) => {
   db.refresh_token
-    .findOne({ token: req.body.refresh_token })
+    .findOne({ where: { token: req.body.refresh_token } })
     .then((refresh_token) => {
       if (refresh_token) {
         if (refresh_token.expired) {
@@ -24,11 +24,11 @@ router.post("/auth/refresh_token", async (req, res) => {
                 config.user.jwt_refresh_token_expiration
               ) {
                 db.refresh_token
-                  .updateOne(
-                    { token: refresh_token.token },
-                    { $set: { expired: true } }
+                  .update(
+                    { expired: true },
+                    { where: { token: refresh_token.token } }
                   )
-                  .then((expiredToken) => {
+                  .then(() => {
                     res
                       .status(401)
                       .json({ error: true, message: "Token is expired" });

@@ -21,7 +21,7 @@ router.post("/auth/authorize_new_IP", async (req, res) => {
             verified_token.ip,
             req.body.new_IP_token
           )
-          .then((user) => {
+          .then(() => {
             return res.status(200).json({
               error: false,
               message: "New IP address authorized successfully",

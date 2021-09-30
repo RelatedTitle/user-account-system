@@ -7,46 +7,46 @@ const send_new_IP_email =
 
 async function generate_new_IP_token(userid, email, IP) {
   return new Promise(function (resolve, reject) {
-    db.user.findOne({ userid: userid }).then((user) => {
+    db.user.findOne({ where: { userid: userid } }).then((user) => {
       if (!user) {
         return reject("No such user");
       } else {
         // Add IP to userIPs array and set authorized to false.
-        user.userIPs.push({
-          ip: IP,
-          date_added: new Date(),
-          authorized: false,
-        });
-        user.save().then((updated_user) => {
-          // Generate newIP token:
-          token = jwt.sign(
-            { userid: userid, ip: IP, type: "newIP" },
-            config.user.jwt_new_ip_secret
-          );
-          new_IP_token = new db.new_IP_token({
-            userid: userid,
-            token: token,
+        db.userip
+          .create({
+            userUserid: user.userid,
             ip: IP,
-            expired: false,
+            date_added: new Date(),
+            authorized: false,
+          })
+          .then(() => {
+            // Generate newIP token:
+            token = jwt.sign(
+              { userid: userid, ip: IP, type: "newIP" },
+              config.user.jwt_new_ip_secret
+            );
+            db.new_IP_token
+              .create({
+                userUserid: userid,
+                token: token,
+                ip: IP,
+                expired: false,
+              })
+              .then((current_new_IP_token) => {
+                // Send new IP email
+                send_new_IP_email(
+                  email,
+                  config.fqdn +
+                    "/auth/authorize_new_IP/" +
+                    current_new_IP_token.token,
+                  IP
+                );
+                return resolve(current_new_IP_token);
+              })
+              .catch(() => {
+                return reject("Error saving new IP token");
+              });
           });
-          // Save newIP Token
-          new_IP_token
-            .save()
-            .then((current_new_IP_token) => {
-              // Send new IP email
-              send_new_IP_email(
-                email,
-                config.fqdn +
-                  "/auth/authorize_new_IP/" +
-                  current_new_IP_token.token,
-                IP
-              ).then((email_info) => {});
-              return resolve(current_new_IP_token);
-            })
-            .catch((err) => {
-              return reject("Error saving new IP token");
-            });
-        });
       }
     });
   });
@@ -54,36 +54,39 @@ async function generate_new_IP_token(userid, email, IP) {
 
 async function check_new_IP_token(userid, IP, token) {
   return new Promise(function (resolve, reject) {
-    db.new_IP_token.findOne({ token: token }).then((new_IP_token) => {
-      if (!new_IP_token) {
-        return reject("No such valid token");
-      }
-      if (new_IP_token.expired) {
-        return reject("Token is expired");
-      } else {
-        db.user.findOne({ userid: userid }).then((user) => {
-          if (!user) {
-            reject("No such user");
-          } else {
-            db.new_IP_token
-              .updateOne({ token: token }, { $set: { expired: true } })
-              .then((new_IP_token) => {
-                // Expire the token
-                user.userIPs.forEach((ip) => {
-                  // Find the IP in the userIPs array and authorize it.
-                  if (ip.ip === IP) {
-                    ip.authorized = true;
-                    ip.date_authorized = new Date();
-                  }
+    db.new_IP_token
+      .findOne({ where: { token: token } })
+      .then((new_IP_token) => {
+        if (!new_IP_token) {
+          return reject("No such valid token");
+        }
+        if (new_IP_token.expired) {
+          return reject("Token is expired");
+        } else {
+          db.user.findOne({ where: { userid: userid } }).then((user) => {
+            if (!user) {
+              reject("No such user");
+            } else {
+              // Expire the token
+              db.new_IP_token
+                .update({ expired: true }, { where: { token: token } })
+                .then(() => {
+                  // Authorize IP
+                  db.userip
+                    .update(
+                      { authorized: true, date_authorized: new Date() },
+                      { where: { userUserid: userid, ip: IP } }
+                    )
+                    .then(() => {
+                      new_IP_token.authorized = true;
+                      new_IP_token.date_authorized = new Date(); // Will be different than the one in the DB by a few ms but it doesn't matter
+                      return resolve(new_IP_token);
+                    });
                 });
-                user.save().then((updated_user) => {
-                  resolve(updated_user);
-                });
-              });
-          }
-        });
-      }
-    });
+            }
+          });
+        }
+      });
   });
 }
 

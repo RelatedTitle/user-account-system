@@ -8,9 +8,9 @@ router.post(
   "/user/request_2FA_secret",
   passport.authenticate("jwt", { failWithError: true, session: false }),
   (req, res, next) => {
-    db.user.findOne({ userid: req.user._id }).then((user) => {
-      if (user["2FA"] != undefined) {
-        if (user["2FA"].active) {
+    db.user.findOne({ where: { userid: req.user._id } }).then((user) => {
+      if (!user.MFA_secret) {
+        if (user.MFA_active) {
           return res.status(403).json({
             error: true,
             message: "2FA is already enabled",
@@ -19,15 +19,14 @@ router.post(
       }
       secret = otp.authenticator.generateSecret();
       db.user
-        .updateOne(
-          { userid: req.user._id },
+        .update(
           {
-            $set: {
-              "2FA": { active: false, secret: secret },
-            },
-          }
+            MFA_active: false,
+            MFA_secret: secret,
+          },
+          { where: { userid: req.user._id } }
         )
-        .then((updated_user) => {
+        .then(() => {
           return res.status(200).json({
             error: false,
             totp_secret: secret,

@@ -27,7 +27,7 @@ router.post("/auth/reset_password", async (req, res) => {
             req.body.password,
             req.body.password_reset_token
           )
-          .then((user) => {
+          .then(() => {
             return res.status(200).json({
               error: false,
               message: "Password changed successfully",

@@ -1,104 +1,29 @@
-const mongoose = require("mongoose");
+const { DataTypes } = require("sequelize");
+const sequelize = require("../db_connection");
 
-const user_schema = new mongoose.Schema({
+const user = sequelize.define("user", {
   userid: {
-    type: Number,
+    type: DataTypes.BIGINT,
     unique: true,
-    sparse: true,
+    primaryKey: true,
   },
   username: {
-    display_username: {
-      type: String,
-      unique: true,
-      sparse: true,
-    },
-    real_username: {
-      type: String,
-      unique: true,
-      sparse: true,
-    },
+    type: DataTypes.STRING,
+    unique: true,
   },
-  usernamehistory: [
-    {
-      display_username: String,
-      real_username: String,
-      date: Date,
-    },
-  ],
-  trustscore: Number,
-  trustactions: [
-    {
-      action: String,
-      points: Number,
-      date: Date,
-      data: Object,
-    },
-  ],
+  trustscore: { type: DataTypes.INTEGER },
   email: {
-    email: {
-      type: String,
-      unique: true,
-      sparse: true,
-    },
-    email_type: Number,
-    provider: String,
-    verified: Boolean,
+    type: DataTypes.STRING,
+    unique: true,
   },
-  emailhistory: [
-    {
-      email: {
-        type: String,
-        unique: true,
-        sparse: true,
-      },
-      date: Date,
-      email_type: Number,
-      provider: String,
-      verified: Boolean,
-    },
-  ],
-  account_connections: [
-    {
-      provider: String,
-      data: Object,
-    },
-  ],
-  oauth: {
-    googleoauthid: {
-      type: String,
-      unique: true,
-      sparse: true,
-    },
-    githuboauthid: {
-      type: String,
-      unique: true,
-      sparse: true,
-    },
-    discordoauthid: {
-      type: String,
-      unique: true,
-      sparse: true,
-    },
-    facebookoauthid: {
-      type: String,
-      unique: true,
-      sparse: true,
-    },
-  },
-  "2FA": {
-    secret: String,
-    active: Boolean,
-  },
-  userIPs: [
-    {
-      ip: String,
-      date_added: Date,
-      authorized: Boolean,
-      date_authorized: Date,
-    },
-  ],
-  password: String,
-  creation_date: Date,
+  email_type: { type: DataTypes.INTEGER },
+  email_provider: { type: DataTypes.STRING },
+  email_verified: { type: DataTypes.BOOLEAN },
+  MFA_secret: { type: DataTypes.STRING },
+  MFA_active: { type: DataTypes.BOOLEAN },
+  password: { type: DataTypes.STRING },
+  creation_date: { type: DataTypes.DATE },
+  avatar_url: { type: DataTypes.STRING },
 });
 
-module.exports = { user_schema };
+module.exports = user;

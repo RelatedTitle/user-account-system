@@ -3,7 +3,7 @@ const config = require("../../config.js");
 const db = require("../../db/db.js");
 const email = require("../../email/email.js");
 const register = require("../register.js");
-const auth = require("../auth.js");
+const avatar = require("../../util/avatar.js");
 const link_account = require("./link_account.js").link_account;
 const link_account_email = require("./link_account.js").link_account_email;
 
@@ -53,59 +53,66 @@ function oauth(request, profile, provider) {
           }
           // Authenticated
           db.user
-            .findOne({ id: token.userid })
+            .findOne({ where: { id: token.userid } })
             .then((user) => {
               link_account(user, profile, provider)
                 .then((linked_user) => {
                   return resolve(linked_user);
                 })
-                .catch((err) => {
+                .catch(() => {
                   return reject("Error");
                 });
             })
-            .catch((err) => {
+            .catch(() => {
               return reject("Error");
             });
         }
       );
     }
     email_info = email.get_email_info(user_email);
-    db.user
-      .findOne({ [`oauth.${provider.toLowerCase()}oauthid`]: profile.id })
+    db.account_connection
+      .findOne({ where: { id: profile.id }, include: { model: db.user } })
       .then((user) => {
         if (user) {
           // User found:
-          return resolve(user);
+          return resolve(user.user);
         }
-        // Register a new user (also automatically verifies the user's email):
-        register
-          .register_user(
-            user_email,
-            get_oauth_username(profile, provider),
-            null,
-            {
-              provider: provider,
-              data: profile,
-            },
-            request.ip
-          )
-          .then((new_user) => {
-            return resolve(new_user);
-          })
-          .catch((err) => {
-            if (err == "Email already exists") {
+        // User not found by id:
+
+        // Try finding the user by the email address from the OAuth provider.
+        db.user
+          .findOne({ where: { email: email_info.realemail } })
+          .then(async (user) => {
+            if (user) {
+              // User with the same email address found.
               // If user account already exists, link it to their OAuth account (also automatically verifies the user's email if necessary)
-              link_account_email(profile, provider)
+              await link_account_email(profile, provider)
                 .then((linked_user) => {
                   return resolve(linked_user);
                 })
-                .catch((err) => {
+                .catch(() => {
                   return reject("Error");
                 });
-            } else {
-              // Some other error
-              return reject("Unknown Error");
             }
+            // If the user couldn't be found by their email address, register a new user (also automatically verifies the user's email if needed):
+            register
+              .register_user(
+                user_email,
+                get_oauth_username(profile, provider),
+                null,
+                {
+                  provider: provider,
+                  data: profile,
+                },
+                request.ip,
+                avatar.get_oauth_avatar(profile, provider)
+              )
+              .then((new_user) => {
+                return resolve(new_user);
+              })
+              .catch((err) => {
+                return reject(err);
+              });
           });
       });
   });

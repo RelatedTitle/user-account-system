@@ -25,7 +25,7 @@ router.post(
               req.params["email_verification_token"] ||
                 req.body.email_verification_token
             )
-            .then((user) => {
+            .then(() => {
               return res.status(200).json({
                 error: false,
                 message: "Email verified successfully",

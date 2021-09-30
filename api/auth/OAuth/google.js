@@ -16,7 +16,7 @@ router.get(
   passport.authenticate("google", { failWithError: true, session: false }),
   (req, res) => {
     issue_jwt
-      .issue_refresh_jwt(req.user.userid, req.user.email.email)
+      .issue_refresh_jwt(req.user.userid, req.user.email)
       .then((tokens) => {
         return res.json({
           error: false,

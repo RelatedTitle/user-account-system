@@ -44,15 +44,15 @@ router.post("/auth/register", check_captcha, async (req, res) => {
     )
     .then((registered_user) => {
       issue_jwt
-        .issue_refresh_jwt(registered_user.userid, registered_user.email.email)
+        .issue_refresh_jwt(registered_user.userid, registered_user.email)
         .then((tokens) => {
           res.status(201).json({
             error: false,
             message: "User registered successfully",
             user: {
               userid: registered_user.userid,
-              username: registered_user.username.display_username,
-              email: registered_user.email.email,
+              username: registered_user.username,
+              email: registered_user.email,
             },
             access_token: tokens.access_token,
             refresh_token: tokens.refresh_token,

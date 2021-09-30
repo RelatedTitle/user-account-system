@@ -25,16 +25,20 @@ passport.use(
       usernameField: "email",
       passwordField: "password",
     },
-    async (email, password, done) => {
+    async (user_email, password, done) => {
       try {
-        let currentUser = await db.user.findOne({
-          "email.email": email.toLowerCase(),
+        let current_user = await db.user.findOne({
+          where: {
+            email: email.get_email_info(user_email).realemail,
+          },
         });
-        if (currentUser) {
+        if (current_user) {
           // User found
-          if (await bcrypt.compare(password, currentUser.password)) {
+          if (await bcrypt.compare(password, current_user.password)) {
             // Password Correct
-            return done(null, currentUser, { message: "Login was successful" });
+            return done(null, current_user, {
+              message: "Login was successful",
+            });
           } else {
             // Password Incorrect
             return done(null, false, { message: "Password Incorrect" });

@@ -2,7 +2,7 @@ const router = require("express").Router();
 
 const passport = require("passport");
 const issue_jwt = require("../../auth/issue_jwt.js");
-const new_IP = require("../../auth/new_IP.js");
+const check_user_ip = require("../../util/check_user_ip.js");
 const otp = require("otplib");
 
 // MIDDLEWARE:
@@ -17,57 +17,40 @@ router.post("/auth/login", check_captcha, (req, res, next) => {
         return res.status(403).json({ error: true, message: info.message });
       }
 
-      if (user["2FA"].active) {
-        if (!req.body.totpCode) {
+      if (user.MFA_active) {
+        if (!req.body.totp_code) {
           return res.status(403).json({
             error: true,
             message: "2FA is active but no code was provided",
           });
         }
-        if (!otp.authenticator.check(req.body.totpCode, user["2FA"].secret)) {
+        if (!otp.authenticator.check(req.body.totp_code, user.MFA_secret)) {
           return res
             .status(403)
             .json({ error: true, message: "Incorrect TOTP code" });
         }
       }
 
-      let is_new_IP;
-      user.userIPs.forEach((ip) => {
-        if (ip.ip === req.ip) {
-          // If this IP is already in the userIPs list.
-          is_new_IP = false;
-          if (!ip.authorized) {
-            // If the IP already exists in the database, but is not authorized
-            return res.json({
-              error: true,
-              message: "IP address not authorized",
-            });
-          }
-        }
+      // Check if the user IP is authorized
+      let user_ip_response = null;
+      await check_user_ip(user, req.ip).catch((response) => {
+        user_ip_response = response;
       });
-      if (is_new_IP != false) {
-        // If the IP is not in the userIPs list, generated newIP token (It will also add it to the usersIP array as unauthorized)
-        return await new_IP
-          .generate_new_IP_token(user.userid, user.email.email, req.ip)
-          .then(() => {
-            res.json({
-              error: false,
-              message: "New IP address, authorization required",
-            });
-          });
+      if (user_ip_response !== null) {
+        return res.status(403).json(user_ip_response);
       }
 
       req.login(user, { session: false }, async (err) => {
-        if (err) return res.status(403).json({ error: true, message: "Error" });
-        issue_jwt
-          .issue_refresh_jwt(user.userid, user.email.email)
-          .then((tokens) => {
-            return res.json({
-              error: false,
-              access_token: tokens.access_token,
-              refresh_token: tokens.refresh_token,
-            });
+        if (err) {
+          return res.status(403).json({ error: true, message: "Error" });
+        }
+        issue_jwt.issue_refresh_jwt(user.userid, user.email).then((tokens) => {
+          return res.json({
+            error: false,
+            access_token: tokens.access_token,
+            refresh_token: tokens.refresh_token,
           });
+        });
       });
     } catch (err) {
       return res.status(500).json({ error: true, message: "Error" });

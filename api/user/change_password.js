@@ -23,7 +23,7 @@ router.post(
         message: "Invalid Password",
       });
     }
-    db.user.findOne({ userid: req.user._id }).then((user) => {
+    db.user.findOne({ where: { userid: req.user._id } }).then((user) => {
       bcrypt.compare(req.body.old_password, user.password).then((results) => {
         if (results) {
           // Generates Salt:
@@ -34,13 +34,13 @@ router.post(
               salt,
               function (err, hashed_password) {
                 db.user
-                  .updateOne(
-                    { userid: req.user._id },
-                    { $set: { password: hashed_password } }
+                  .update(
+                    { password: hashed_password },
+                    { where: { userid: req.user._id } }
                   )
-                  .then((new_user) => {
+                  .then(() => {
                     send_password_change_confirmation_email(user.email).then(
-                      (email_info) => {
+                      () => {
                         return res.status(200).json({
                           error: false,
                           message: "Password changed successfully",
@@ -48,7 +48,7 @@ router.post(
                       }
                     );
                   })
-                  .catch((err) => {
+                  .catch(() => {
                     return res.status(500).json({
                       error: true,
                       message: "Unknown Error",

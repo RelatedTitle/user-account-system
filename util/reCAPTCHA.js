@@ -12,7 +12,7 @@ function verify(secret, recaptcha_responsee) {
           return resolve(res.data);
         }
       })
-      .catch((error) => {
+      .catch(() => {
         return reject("CAPTCHA Error");
       });
   });

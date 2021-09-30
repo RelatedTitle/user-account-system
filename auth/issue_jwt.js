@@ -28,21 +28,22 @@ function issue_refresh_jwt(userid, email) {
       config.user.jwt_auth_secret
     );
 
-    refresh_token = new db.refresh_token({
-      userid: userid,
-      email: email,
-      token: jwt.sign(
-        { user: body, type: "refresh" },
-        config.user.jwt_auth_secret
-      ),
-      expired: false,
-    });
-    refresh_token.save().then((refresh_token) => {
-      resolve({
-        access_token: access_token,
-        refresh_token: refresh_token.token,
+    db.refresh_token
+      .create({
+        userUserid: userid,
+        email: email,
+        token: jwt.sign(
+          { user: body, type: "refresh" },
+          config.user.jwt_auth_secret
+        ),
+        expired: false,
+      })
+      .then((refresh_token) => {
+        resolve({
+          access_token: access_token,
+          refresh_token: refresh_token.token,
+        });
       });
-    });
   });
 }
 
