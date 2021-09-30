@@ -67,6 +67,14 @@ config.user.username_regex =
   /^(?=.{6,18}$)(?![_.])(?!.*[_.]{2})[a-zA-Z0-9._]+(?<![_.])$/;
 config.user.password_regex = /^(?=.*[A-Z])(?=.*[a-z])(?=.*[0-9]).*$/;
 
+// Avatar
+config.user.avatar = {};
+
+config.user.avatar.size = 250;
+config.user.avatar.compression_level = 6;
+config.user.avatar.store_gravatar = true;
+config.user.avatar.max_size = 150 * 1024;
+
 // Email:
 
 config.email.smtp = {};
