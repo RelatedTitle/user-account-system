@@ -1,15 +1,11 @@
-## 💥 How to Contribute
-
-[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square)](http://makeapullrequest.com)
-[![Open Source Love](https://badges.frapsoft.com/os/v1/open-source.png?v=103)](https://github.com/ellerbrock/open-source-badges/)
+##  How to Contribute
 
 - Take a look at the Existing [Issues](https://github.com/RelatedTitle/user-account-system/issues) or create your own Issues!
 - Fork the Repo and create a Branch for any Issue that you are working upon.
 - Create a Pull Request which will be promptly reviewed and suggestions would be added to improve it.
-- Add Screenshots to help us know what this Script is all about.
 
 
-## ⭐HOW TO MAKE A PULL REQUEST:
+## HOW TO MAKE A PULL REQUEST:
 
 **1.** Fork [this](https://github.com/RelatedTitle/user-account-system) repository.
 
@@ -62,13 +58,7 @@ git push origin YourBranchName
 - Reference issues and pull requests liberally after the first line
 
 
-## 💥 Issues:
+## Issues:
 For major changes, you are welcomed to open an issue  about what you would like to contribute. Enhancements will be appreciated.
 
 #### All the Best!🥇
-
-<p align = "center">
-
-[![built with love](https://forthebadge.com/images/badges/built-with-love.svg)](https://github.com/unnati914/Care4ther-)
-
-</p>
