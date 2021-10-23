@@ -1,6 +1,5 @@
 // TODO:
 // Add different options for uploading avatars. S3, local, new Cloudflare images thingy, etc.
-// Compress image beforehand and add a configurable file size limit.
 
 const router = require("express").Router();
 
