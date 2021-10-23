@@ -24,6 +24,9 @@ function process_avatar(avatar) {
       .toBuffer()
       .then((processed_avatar) => {
         return resolve(processed_avatar);
+      })
+      .catch((error) => {
+        return reject(error);
       });
   });
 }
@@ -42,7 +45,11 @@ function store_avatar(avatar) {
       return resolve(`${config.fqdn}/avatars/${random_number}.png`);
     };
     // Store avatar as a file
-    fs.writeFile(filename, avatar, file_stored);
+    try {
+      fs.writeFile(filename, avatar, file_stored);
+    } catch (err) {
+      return reject("Failed to store avatar.");
+    }
   });
 }
 
@@ -62,23 +69,26 @@ function download_avatar(avatar_url) {
 function upload_avatar(avatar, avatar_url) {
   return new Promise(async (resolve, reject) => {
     if (avatar_url) {
-      // If an avatar URL is provided instead of the avatar itselft, download the avatar
+      // If an avatar URL is provided instead of the avatar itself, download the avatar
       // Get avatar
-      await download_avatar(avatar_url)
-        .then((downloaded_avatar) => {
-          avatar = downloaded_avatar;
-        })
-        .catch((err) => {
-          // Failed to download avatar from URL
-          reject(err);
-        });
+      try {
+        avatar = await download_avatar(avatar_url);
+      } catch (error) {
+        // Failed to download avatar from URL
+        return reject("Failed to download avatar.");
+      }
     }
     // Process avatar
-    avatar = await process_avatar(avatar);
+    try {
+      avatar = await process_avatar(avatar);
+    } catch (error) {
+      // Failed to process avatar
+      return reject("Failed to process avatar.");
+    }
 
     if (avatar.toString().length > config.user.avatar.max_size) {
       // Avatar is too large
-      return reject("Avatar is too large");
+      return reject("Avatar is too large.");
     }
 
     // Store avatar
