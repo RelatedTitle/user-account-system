@@ -32,6 +32,6 @@ The purpose of this project is to make implementing auth in my future projects e
 * Ability for users to change their email and password.
 * Adding new authenticated routes is easy.
 * 2FA Support
-* Partial support for user avatars, currently using the user's OAuth provider account's avatar (if registering through an OAuth provider) or their [Gravatar](https://en.gravatar.com/) avatar (if they have one linked to their email address). Avatars can be stored:
+* Partial support for user avatars, currently using the user's OAuth provider account's avatar (if registering through an OAuth provider), their [Gravatar](https://en.gravatar.com/) avatar (if they have one linked to their email address), or a custom avatar they upload. Avatars can be stored:
 	* Locally
 	* ~~Amazon S3~~ (COMING SOON)
