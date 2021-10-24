@@ -34,4 +34,4 @@ The purpose of this project is to make implementing auth in my future projects e
 * 2FA Support
 * Partial support for user avatars, currently using the user's OAuth provider account's avatar (if registering through an OAuth provider), their [Gravatar](https://en.gravatar.com/) avatar (if they have one linked to their email address), or a custom avatar they upload. Avatars can be stored:
 	* Locally
-	* ~~Amazon S3~~ (COMING SOON)
+	* Amazon S3
