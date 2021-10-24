@@ -36,7 +36,10 @@ router.post("/auth/refresh_token", async (req, res) => {
               } else {
                 // Issue new access token:
                 issue_jwt
-                  .issue_access_jwt(refresh_token.userid, refresh_token.email)
+                  .issue_access_jwt(
+                    refresh_token.userUserid,
+                    refresh_token.email
+                  )
                   .then((token) => {
                     res
                       .status(200)
