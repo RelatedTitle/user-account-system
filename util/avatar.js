@@ -2,6 +2,7 @@ const axios = require("axios");
 const sharp = require("sharp");
 const fs = require("fs");
 const crypto = require("crypto");
+const AWS = require("aws-sdk");
 const config = require("../config.js");
 
 function gravatar_image(email) {
@@ -31,8 +32,43 @@ function process_avatar(avatar) {
   });
 }
 
-function store_avatar(avatar) {
+function store_locally(avatar, filename) {
   return new Promise((resolve, reject) => {
+    const file_stored = () => {
+      return resolve(`${config.fqdn}/avatars/${filename}`);
+    };
+    try {
+      fs.writeFile(`./content/avatars/${filename}`, avatar, file_stored);
+    } catch (err) {
+      return reject("Failed to store avatar.");
+    }
+  });
+}
+
+function store_s3(avatar, filename) {
+  return new Promise((resolve, reject) => {
+    const s3 = new AWS.S3({
+      accessKeyId: config.user.avatar.s3.access_key,
+      secretAccessKey: config.user.avatar.s3.secret_access_key,
+    });
+    s3.upload(
+      {
+        Bucket: config.user.avatar.s3.bucket,
+        Key: `avatars/${filename}`,
+        Body: avatar,
+      },
+      function (err, data) {
+        if (!err) {
+          return resolve(data.Location);
+        }
+        return reject("Failed to store avatar.");
+      }
+    );
+  });
+}
+
+function store_avatar(avatar) {
+  return new Promise(async (resolve, reject) => {
     let n = 10;
     let random_number =
       1 +
@@ -40,15 +76,20 @@ function store_avatar(avatar) {
       Math.random()
         .toFixed(n - 1)
         .split(".")[1];
-    let filename = `./content/avatars/${random_number}.png`;
-    const file_stored = () => {
-      return resolve(`${config.fqdn}/avatars/${random_number}.png`);
-    };
-    // Store avatar as a file
-    try {
-      fs.writeFile(filename, avatar, file_stored);
-    } catch (err) {
-      return reject("Failed to store avatar.");
+    // Store avatar on the preferred storage location
+    switch (config.user.avatar.storage_location) {
+      case "local":
+        try {
+          return resolve(await store_locally(avatar, `${random_number}.png`)); // Return avatar URL if successful
+        } catch (error) {
+          return reject(error);
+        }
+      case "s3":
+        try {
+          return resolve(await store_s3(avatar, `${random_number}.png`)); // Return avatar URL if successful
+        } catch (error) {
+          return reject(error);
+        }
     }
   });
 }
@@ -123,9 +164,3 @@ module.exports = {
   get_oauth_avatar,
   upload_avatar,
 };
-
-// get_avatar(
-//     `https://www.gravatar.com/avatar/${gravatar_image(email)}?d=404&s=${
-//       config.user.avatar.size
-//     }`
-//   );

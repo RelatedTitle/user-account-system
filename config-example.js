@@ -75,6 +75,14 @@ config.user.avatar.compression_level = 6;
 config.user.avatar.store_gravatar = true;
 config.user.avatar.max_size = 150 * 1024;
 
+config.user.avatar.storage_location = "local";
+
+config.user.avatar.s3 = {};
+
+config.user.avatar.s3.access_key = "";
+config.user.avatar.s3.secret_access_key = "";
+config.user.avatar.s3.bucket = "";
+
 // Email:
 
 config.email.smtp = {};
