@@ -13,8 +13,8 @@ async function check_user_ip(user, ip) {
           await new_IP
             .generate_new_IP_token(user.userid, user.email, ip)
             .then(() => {
-              return resolve({
-                error: false,
+              return reject({
+                error: true,
                 message: "New IP address, authorization required",
               });
             });
