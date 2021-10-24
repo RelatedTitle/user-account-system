@@ -21,7 +21,7 @@ function process_avatar(avatar) {
         height: config.user.avatar.size,
         width: config.user.avatar.size,
       })
-      .png({ compressionLevel: config.user.avatar.compression_level })
+      .png({ quality: config.user.avatar.quality })
       .toBuffer()
       .then((processed_avatar) => {
         return resolve(processed_avatar);

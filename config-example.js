@@ -71,7 +71,7 @@ config.user.password_regex = /^(?=.*[A-Z])(?=.*[a-z])(?=.*[0-9]).*$/;
 config.user.avatar = {};
 
 config.user.avatar.size = 250;
-config.user.avatar.compression_level = 6;
+config.user.avatar.quality = 90;
 config.user.avatar.store_gravatar = true;
 config.user.avatar.max_size = 150 * 1024;
 
