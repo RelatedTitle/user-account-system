@@ -15,7 +15,7 @@ const storage = multer.memoryStorage();
 const upload = multer({ storage: storage });
 
 router.post(
-  "/user/upload_avatar",
+  "/user/change_avatar",
   upload.single("avatar"),
   passport.authenticate("jwt", { failWithError: true, session: false }),
   async (req, res, next) => {
