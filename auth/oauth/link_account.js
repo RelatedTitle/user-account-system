@@ -8,7 +8,7 @@ function link_account(user, profile, provider) {
     let email = get_email_info(get_oauth_email(profile, provider)).realemail;
     let linked = false;
     await db.account_connection
-      .findOne({ where: { userUserid: user.id, provider: provider } })
+      .findOne({ where: { userUserid: user.userid, provider: provider } })
       .then((account_connection) => {
         if (account_connection) {
           linked = true;
@@ -47,6 +47,7 @@ function link_account(user, profile, provider) {
         }
         return reject("Error linking account");
       });
+    return resolve(user);
   });
 }
 
