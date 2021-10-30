@@ -3,6 +3,7 @@ var config = {};
 config.trustscore = {};
 config.db = {};
 config.user = {};
+config.email = {};
 
 // General:
 
@@ -97,87 +98,5 @@ config.email.smtp.auth = {};
 
 config.email.smtp.auth.user = "";
 config.email.smtp.auth.password = "";
-
-// Trustscore
-
-// Email:
-config.trustscore.emailProvider = {};
-
-config.trustscore.emailProvider.Gmail = {};
-config.trustscore.emailProvider.Gmail.points = 25;
-
-config.trustscore.emailProvider.Apple = {};
-config.trustscore.emailProvider.Apple.points = 20;
-
-config.trustscore.emailProvider.Microsoft = {};
-config.trustscore.emailProvider.Microsoft.points = 15;
-
-config.trustscore.emailProvider.Yahoo = {};
-config.trustscore.emailProvider.Yahoo.points = 10;
-
-config.trustscore.emailProvider.Protonmail = {};
-config.trustscore.emailProvider.Protonmail.points = 7;
-
-config.trustscore.emailProvider.AOL = {};
-config.trustscore.emailProvider.AOL.points = 10;
-
-config.trustscore.emailProvider.Yandex = {};
-config.trustscore.emailProvider.Yandex.points = 10;
-
-config.trustscore.emailProvider.Education = {};
-config.trustscore.emailProvider.Education.points = 100;
-
-config.trustscore.emailProvider.Government = {};
-config.trustscore.emailProvider.Government.points = 500;
-
-config.trustscore.emailProvider.Disposable = {};
-config.trustscore.emailProvider.Disposable.points = -15;
-
-config.trustscore.emailProvider.Unknown = {};
-config.trustscore.emailProvider.Unknown.points = 0;
-
-config.trustscore.completedCaptcha = {};
-config.trustscore.completedCaptcha.points = 3;
-config.trustscore.verifiedEmail = {};
-config.trustscore.verifiedEmail.points = 3;
-
-// IP:
-
-config.trustscore.ip = {};
-
-config.trustscore.ip.residential = {};
-config.trustscore.ip.residential.points = 10;
-
-config.trustscore.ip.vpnproxy = {};
-config.trustscore.ip.vpnproxy.points = -5;
-
-config.trustscore.ip.tor = {};
-config.trustscore.ip.tor.points = -5;
-
-config.trustscore.ip.server = {};
-config.trustscore.ip.server.points = -10;
-
-// Account:
-config.trustscore.accountType = {};
-
-config.trustscore.accountType.normal = {};
-config.trustscore.accountType.normal.points = 0;
-
-config.trustscore.accountType.premium = {};
-config.trustscore.accountType.premium.points = 30;
-
-config.trustscore.accountType.organization = {};
-config.trustscore.accountType.organization.points = 50;
-
-config.trustscore.verified = {};
-config.trustscore.verified.points = 100;
-
-// Content:
-
-config.trustscore.contentRemoved = {};
-config.trustscore.contentRemoved.points = -10;
-
-config.trustscore.contentVerified = {};
-config.trustscore.contentVerified.points = 5;
 
 module.exports = config;
