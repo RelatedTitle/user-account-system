@@ -6,6 +6,10 @@ const user = require("./models/user.model.js");
 const account_connection = require("./models/account_connection.model.js");
 const userip = require("./models/userip.model.js");
 
+const { Sequelize } = require("sequelize");
+
+const Op = Sequelize.Op;
+
 account_connection.belongsTo(user);
 userip.belongsTo(user);
 email_verification_token.belongsTo(user);
@@ -21,4 +25,5 @@ module.exports = {
   password_reset_token,
   new_IP_token,
   refresh_token,
+  Op,
 };

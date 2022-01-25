@@ -23,19 +23,20 @@ router.post("/auth/refresh_token", async (req, res) => {
                 Math.round(Date.now() / 1000) - verified_token.iat >=
                 config.user.jwt_refresh_token_expiration
               ) {
-                auth_token.expire_refresh_token(refresh_token.token, "Timeout");
+                auth_token.expire_refresh_tokens(
+                  [refresh_token.token],
+                  "Timeout"
+                );
               } else {
                 // Issue new access token:
-                auth_token
-                  .issue_access_jwt(
-                    refresh_token.userUserid,
-                    refresh_token.email
-                  )
-                  .then((token) => {
-                    res
-                      .status(200)
-                      .json({ error: false, access_token: token.access_token });
-                  });
+                access_token = auth_token.issue_access_jwt(
+                  refresh_token.userUserid,
+                  refresh_token.email,
+                  refresh_token.token
+                );
+                res
+                  .status(200)
+                  .json({ error: false, access_token: access_token });
               }
             }
           );

@@ -2,19 +2,17 @@ const config = require("../config.js");
 const jwt = require("jsonwebtoken");
 const db = require("../db/db.js");
 
-function issue_access_jwt(userid, email) {
-  return new Promise(function (resolve, reject) {
-    body = {
-      _id: userid,
-      email: email,
-    };
-    access_token = jwt.sign(
-      { user: body, type: "access" },
-      config.user.jwt_auth_secret
-    );
+function issue_access_jwt(userid, email, refresh_token) {
+  body = {
+    _id: userid,
+    email: email,
+  };
+  access_token = jwt.sign(
+    { user: body, type: "access", refresh_token: refresh_token },
+    config.user.jwt_auth_secret
+  );
 
-    resolve({ access_token: access_token });
-  });
+  return access_token;
 }
 
 function issue_refresh_jwt(userid, email) {
@@ -23,10 +21,6 @@ function issue_refresh_jwt(userid, email) {
       _id: userid,
       email: email,
     };
-    access_token = jwt.sign(
-      { user: body, type: "access" },
-      config.user.jwt_auth_secret
-    );
 
     db.refresh_token
       .create({
@@ -39,6 +33,7 @@ function issue_refresh_jwt(userid, email) {
         expired: false,
       })
       .then((refresh_token) => {
+        access_token = issue_access_jwt(userid, email, refresh_token.token);
         resolve({
           access_token: access_token,
           refresh_token: refresh_token.token,
@@ -47,13 +42,19 @@ function issue_refresh_jwt(userid, email) {
   });
 }
 
-// Expires all of the user's active refresh tokens.
-function expire_user_tokens(userid, reason) {
+// Expires all of the user's active refresh tokens. (Except the exclude tokens, if specified.)
+function expire_user_tokens(userid, reason, exclude_tokens) {
   return new Promise(function (resolve, reject) {
     db.refresh_token
       .update(
         { expired: true, expiry_date: new Date(), expiry_reason: reason },
-        { where: { userUserid: userid, expired: false } }
+        {
+          where: {
+            userUserid: userid,
+            expired: false,
+            [db.Op.not]: [{ token: exclude_tokens || [""] }],
+          },
+        }
       )
       .then(() => {
         return resolve();
@@ -65,12 +66,12 @@ function expire_user_tokens(userid, reason) {
 }
 
 // Expires a refresh token.
-function expire_refresh_token(refresh_token, reason) {
+function expire_refresh_tokens(refresh_tokens, reason) {
   return new Promise(function (resolve, reject) {
     db.refresh_token
       .update(
         { expired: true, expiry_date: new Date(), expiry_reason: reason },
-        { where: { token: refresh_token } }
+        { where: { token: refresh_tokens } }
       )
       .then(() => {
         return resolve();
@@ -85,5 +86,5 @@ module.exports = {
   issue_access_jwt,
   issue_refresh_jwt,
   expire_user_tokens,
-  expire_refresh_token,
+  expire_refresh_tokens,
 };

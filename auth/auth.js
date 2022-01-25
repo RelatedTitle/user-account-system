@@ -77,10 +77,12 @@ passport.use(
           if (token.type != "access") {
             return done("Incorrect token type");
           } else {
-            return done(null, token.user);
+            user = token.user;
+            user.refresh_token = token.refresh_token;
+            return done(null, user);
           }
         }
-      } catch (err) {
+      } catch (error) {
         done(error);
       }
     }

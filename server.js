@@ -93,10 +93,12 @@ app.use(facebook);
 const change_email = require("./api/user/change_email.js");
 const change_password = require("./api/user/change_password.js");
 const change_avatar = require("./api/user/change_avatar.js");
+const expire_token = require("./api/user/expire_token.js");
 
 app.use(change_email);
 app.use(change_password);
 app.use(change_avatar);
+app.use(expire_token);
 
 // 2FA:
 const activate_2FA = require("./api/user/2FA/activate_2FA.js");

@@ -1,5 +1,6 @@
 const router = require("express").Router();
 
+const auth_token = require("../../auth/tokens.js");
 const db = require("../../db/db.js");
 const passport = require("passport");
 const config = require("../../config.js");
@@ -39,6 +40,11 @@ router.post(
                     { where: { userid: req.user._id } }
                   )
                   .then(() => {
+                    auth_token.expire_user_tokens(
+                      req.user._id,
+                      "Password Change",
+                      [req.user.refresh_token]
+                    ); // Expire all tokens for this user. (Except the current one.)
                     send_password_change_confirmation_email(user.email).then(
                       () => {
                         return res.status(200).json({

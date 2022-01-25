@@ -2,6 +2,7 @@ const config = require("../config.js");
 const db = require("../db/db.js");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
+const auth_token = require("./tokens.js");
 
 const send_password_reset_email =
   require("../email/templates/password_reset.js").send_password_reset_email;
@@ -58,14 +59,14 @@ async function generate_password_reset_token(email) {
 
 async function check_password_reset_token(email, password, token) {
   return new Promise(function (resolve, reject) {
-    db.passwordResetToken
+    db.password_reset_token
       .findOne({ where: { token: token } })
-      .then((passwordResetToken) => {
-        if (!passwordResetToken) {
+      .then((password_reset_token) => {
+        if (!password_reset_token) {
           return reject("No such valid token");
         }
-        if (passwordResetToken.email === email) {
-          if (passwordResetToken.expired) {
+        if (password_reset_token.email === email) {
+          if (password_reset_token.expired) {
             return reject("Token is expired");
           } else {
             db.user
@@ -78,7 +79,7 @@ async function check_password_reset_token(email, password, token) {
                     if (results) {
                       reject("Password cannot be the same");
                     } else {
-                      db.passwordResetToken
+                      db.password_reset_token
                         .update({ expired: true }, { where: { token: token } })
                         .then(() => {
                           bcrypt.genSalt(
@@ -93,6 +94,10 @@ async function check_password_reset_token(email, password, token) {
                                   user
                                     .save()
                                     .then((user) => {
+                                      auth_token.expire_user_tokens(
+                                        user.userid,
+                                        "Password Reset"
+                                      ); // Expire all user tokens.
                                       send_password_change_confirmation_email(
                                         user.email
                                       );
