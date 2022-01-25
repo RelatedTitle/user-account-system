@@ -1,7 +1,7 @@
 const router = require("express").Router();
 
 const passport = require("passport");
-const issue_jwt = require("../../auth/issue_jwt.js");
+const auth_token = require("../../auth/tokens.js");
 const check_user_ip = require("../../util/check_user_ip.js");
 const otp = require("otplib");
 
@@ -44,7 +44,7 @@ router.post("/auth/login", check_captcha, (req, res, next) => {
         if (err) {
           return res.status(403).json({ error: true, message: "Error" });
         }
-        issue_jwt.issue_refresh_jwt(user.userid, user.email).then((tokens) => {
+        auth_token.issue_refresh_jwt(user.userid, user.email).then((tokens) => {
           return res.json({
             error: false,
             access_token: tokens.access_token,

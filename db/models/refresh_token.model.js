@@ -10,6 +10,8 @@ const refresh_token = sequelize.define("refresh_token", {
   email: { type: DataTypes.STRING },
   token: { type: DataTypes.STRING },
   expired: { type: DataTypes.BOOLEAN },
+  expiry_date: { type: DataTypes.DATE },
+  expiry_reason: { type: DataTypes.STRING },
 });
 
 module.exports = refresh_token;

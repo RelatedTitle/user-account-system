@@ -2,7 +2,7 @@ const router = require("express").Router();
 
 const db = require("../../db/db.js");
 const config = require("../../config.js");
-const issue_jwt = require("../../auth/issue_jwt.js");
+const auth_token = require("../../auth/tokens.js");
 const jwt = require("jsonwebtoken");
 
 router.post("/auth/refresh_token", async (req, res) => {
@@ -23,19 +23,10 @@ router.post("/auth/refresh_token", async (req, res) => {
                 Math.round(Date.now() / 1000) - verified_token.iat >=
                 config.user.jwt_refresh_token_expiration
               ) {
-                db.refresh_token
-                  .update(
-                    { expired: true },
-                    { where: { token: refresh_token.token } }
-                  )
-                  .then(() => {
-                    res
-                      .status(401)
-                      .json({ error: true, message: "Token is expired" });
-                  });
+                auth_token.expire_refresh_token(refresh_token.token, "Timeout");
               } else {
                 // Issue new access token:
-                issue_jwt
+                auth_token
                   .issue_access_jwt(
                     refresh_token.userUserid,
                     refresh_token.email

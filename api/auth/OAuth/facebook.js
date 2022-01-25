@@ -1,6 +1,6 @@
 const router = require("express").Router();
 
-const issue_jwt = require("../../../auth/issue_jwt.js");
+const auth_token = require("../../../auth/tokens.js");
 const passport = require("passport");
 
 // NOTE: Using req.user.userid instead of req.user._id is NOT a bug.
@@ -15,7 +15,7 @@ router.get(
   "/auth/facebook/callback",
   passport.authenticate("facebook", { failWithError: true, session: false }),
   (req, res) => {
-    issue_jwt
+    auth_token
       .issue_refresh_jwt(req.user.userid, req.user.email.email)
       .then((tokens) => {
         return res.json({

@@ -2,7 +2,7 @@ const router = require("express").Router();
 
 const register = require("../../auth/register.js");
 const config = require("../../config.js");
-const issue_jwt = require("../../auth/issue_jwt.js");
+const auth_token = require("../../auth/tokens.js");
 
 // MIDDLEWARE:
 const check_captcha = require("../middleware/captcha.js");
@@ -43,7 +43,7 @@ router.post("/auth/register", check_captcha, async (req, res) => {
       req.ip // No need to worry about x-forwarded-for since express will use that automatically when behind a proxy. (As long as config.usingproxy is set to true)
     )
     .then((registered_user) => {
-      issue_jwt
+      auth_token
         .issue_refresh_jwt(registered_user.userid, registered_user.email)
         .then((tokens) => {
           res.status(201).json({
