@@ -9,7 +9,7 @@ async function generate_new_IP_token(userid, email, IP) {
   return new Promise(function (resolve, reject) {
     db.user.findOne({ where: { userid: userid } }).then((user) => {
       if (!user) {
-        return reject("No such user");
+        return reject(new Error("No such user."));
       } else {
         // Add IP to userIPs array and set authorized to false.
         db.userip
@@ -43,8 +43,10 @@ async function generate_new_IP_token(userid, email, IP) {
                 );
                 return resolve(current_new_IP_token);
               })
-              .catch(() => {
-                return reject("Error saving new IP token");
+              .catch((error) => {
+                return reject(
+                  new Error("Error saving new IP token", { cause: error })
+                );
               });
           });
       }
@@ -58,14 +60,14 @@ async function check_new_IP_token(userid, IP, token) {
       .findOne({ where: { token: token } })
       .then((new_IP_token) => {
         if (!new_IP_token) {
-          return reject("No such valid token");
+          return reject(new Error("No such valid new IP token."));
         }
         if (new_IP_token.expired) {
-          return reject("Token is expired");
+          return reject(new Error("New IP token is expired."));
         } else {
           db.user.findOne({ where: { userid: userid } }).then((user) => {
             if (!user) {
-              reject("No such user");
+              reject(new Error("No such user."));
             } else {
               // Expire the token
               db.new_IP_token
@@ -81,6 +83,11 @@ async function check_new_IP_token(userid, IP, token) {
                       new_IP_token.authorized = true;
                       new_IP_token.date_authorized = new Date(); // Will be different than the one in the DB by a few ms but it doesn't matter
                       return resolve(new_IP_token);
+                    })
+                    .catch((error) => {
+                      return reject(
+                        new Error("Error authorizing IP.", { cause: error })
+                      );
                     });
                 });
             }

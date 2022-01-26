@@ -31,25 +31,31 @@ function oauth(request, profile, provider) {
     let user_email = email.get_oauth_email(profile, provider);
     if (!user_email || user_email == "") {
       // User's email address(es) is(are) private or inaccessible for some other reason
-      return reject("Email address private or inaccessible");
+      return reject(new Error("Email address private or inaccessible."));
     }
     if (request.query.state) {
       // If an access token is provided (the user is linking their account)
       jwt.verify(
         request.query.state,
         config.user.jwt_auth_secret,
-        (err, token) => {
-          if (err) {
-            return reject("Tampered or invalid token");
+        (error, token) => {
+          if (error) {
+            return reject(
+              new Error("Failed to verify access token.", { cause: error })
+            );
           }
           if (
             Math.round(Date.now() / 1000) - token.iat >=
             config.user.jwt_access_token_expiration
           ) {
-            return reject("Token expired");
+            return reject(new Error("Access token expired."));
           }
           if (token.type != "access") {
-            return reject("Incorrect token type");
+            return reject(
+              new Error(
+                `Incorrect token type. Expected "access", got "${token.type}."`
+              )
+            );
           }
           // Authenticated
           db.user
@@ -59,12 +65,14 @@ function oauth(request, profile, provider) {
                 .then((linked_user) => {
                   return resolve(linked_user);
                 })
-                .catch(() => {
-                  return reject("Error");
+                .catch((error) => {
+                  return reject(
+                    new Error("Error linking account.", { cause: error })
+                  );
                 });
             })
-            .catch(() => {
-              return reject("Error");
+            .catch((error) => {
+              return reject(new Error("Error finding user.", { cause: error }));
             });
         }
       );
@@ -90,8 +98,10 @@ function oauth(request, profile, provider) {
                   .then((linked_user) => {
                     return resolve(linked_user);
                   })
-                  .catch(() => {
-                    return reject("Error");
+                  .catch((error) => {
+                    return reject(
+                      new Error("Error linking account.", { cause: error })
+                    );
                   });
               }
               // If the user couldn't be found by their email address, register a new user (also automatically verifies the user's email if needed):
@@ -110,8 +120,10 @@ function oauth(request, profile, provider) {
                 .then((new_user) => {
                   return resolve(new_user);
                 })
-                .catch((err) => {
-                  return reject(err);
+                .catch((error) => {
+                  return reject(
+                    new Error("Erorr registering user.", { cause: error })
+                  );
                 });
             });
         });

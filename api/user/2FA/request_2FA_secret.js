@@ -13,7 +13,7 @@ router.post(
         if (user.MFA_active) {
           return res.status(403).json({
             error: true,
-            message: "2FA is already enabled",
+            message: "2FA is already enabled.",
           });
         }
       }
@@ -33,10 +33,6 @@ router.post(
           });
         });
     });
-  },
-  function (err, req, res, next) {
-    // Handle error
-    return res.status(401).send({ error: true, message: err });
   }
 );
 

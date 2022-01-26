@@ -43,10 +43,10 @@ function check_email_verification_token(userid, user_email, token) {
       .findOne({ where: { token: token } })
       .then((email_verification_token) => {
         if (!email_verification_token) {
-          return reject("No such valid token");
+          return reject(new Error("No such valid email verification token."));
         }
         if (email_verification_token.expired) {
-          return reject("Token is expired");
+          return reject(new Error("Email verification token is expired."));
         }
         db.email_verification_token
           .update({ expired: true }, { where: { token: token } })
@@ -63,7 +63,7 @@ function check_email_verification_token(userid, user_email, token) {
               .then(() => {
                 return resolve();
               })
-              .catch(async (err) => {
+              .catch(async (error) => {
                 // If the error indicates that the email is a duplicate (Another account registered with that email)
                 await db.user
                   .findOne({ where: { email: email } })
@@ -71,7 +71,9 @@ function check_email_verification_token(userid, user_email, token) {
                     // Check if that account's email is verified
                     if (user.email_verified) {
                       return reject(
-                        "Email address already in use by another account"
+                        new Error(
+                          "Email address already in use by another account"
+                        )
                       );
                     }
                     // If it is not verified, remove email from the unverified account and add it to the verified one.
@@ -96,12 +98,18 @@ function check_email_verification_token(userid, user_email, token) {
                           });
                       });
                   });
-                return reject(err);
+                return reject(
+                  new Error("Failed to find user.", { cause: error })
+                );
               });
           });
       })
-      .catch((err) => {
-        return reject(err);
+      .catch((error) => {
+        return reject(
+          new Error("Failed to find email verification token.", {
+            cause: error,
+          })
+        );
       });
   });
 }

@@ -18,19 +18,19 @@ router.post("/auth/register", check_captcha, async (req, res) => {
   if (!config.user.email_regex.test(req.body.email.toLowerCase())) {
     return res.status(400).json({
       error: true,
-      message: "Invalid email",
+      message: "Invalid email address.",
     });
   }
   if (!config.user.username_regex.test(req.body.username)) {
     return res.status(400).json({
       error: true,
-      message: "Invalid username",
+      message: "Invalid username.",
     });
   }
   if (!config.user.password_regex.test(req.body.password)) {
     return res.status(400).json({
       error: true,
-      message: "Invalid password",
+      message: "Invalid password.",
     });
   }
 
@@ -48,7 +48,7 @@ router.post("/auth/register", check_captcha, async (req, res) => {
         .then((tokens) => {
           res.status(201).json({
             error: false,
-            message: "User registered successfully",
+            message: "User registered successfully.",
             user: {
               userid: registered_user.userid,
               username: registered_user.username,
@@ -60,26 +60,24 @@ router.post("/auth/register", check_captcha, async (req, res) => {
         });
     })
     .catch((error) => {
-      switch (error) {
-        case "Username already exists":
-          res.status(409).json({
+      switch (error.message) {
+        case "Username is already in use.":
+          return res.status(409).json({
             error: true,
-            message: "Username already exists",
+            message: error.message,
           });
           break;
-        case "Email already exists":
-          res.status(409).json({
+        case "Email is already in use.":
+          return res.status(409).json({
             error: true,
-            message: "Email already exists",
-          });
-          break;
-        case "Unknown error":
-          res.status(500).json({
-            error: true,
-            message: "Unknown error",
+            message: error.message,
           });
           break;
         default:
+          return res.status(500).json({
+            error: true,
+            message: error.message,
+          });
           break;
       }
     });

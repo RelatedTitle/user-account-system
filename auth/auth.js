@@ -37,18 +37,18 @@ passport.use(
           if (await bcrypt.compare(password, current_user.password)) {
             // Password Correct
             return done(null, current_user, {
-              message: "Login was successful",
+              message: "Login was successful.",
             });
           } else {
             // Password Incorrect
-            return done(null, false, { message: "Password Incorrect" });
+            return done(null, false, { message: "Password Incorrect." });
           }
         } else {
           // User Not found
-          return done(null, false, { message: "User not found" });
+          return done(null, false, { message: "User not found." });
         }
-      } catch (err) {
-        return done(err);
+      } catch (error) {
+        return done(error);
       }
     }
   )
@@ -72,10 +72,12 @@ passport.use(
           Math.round(Date.now() / 1000) - token.iat >=
           config.user.jwt_access_token_expiration
         ) {
-          return done("Token expired");
+          return done("Access token expired.");
         } else {
           if (token.type != "access") {
-            return done("Incorrect token type");
+            return done(
+              `Incorrect token type. Expected "access", got "${token.type}."`
+            );
           } else {
             user = token.user;
             user.refresh_token = token.refresh_token;

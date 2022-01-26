@@ -13,12 +13,12 @@ router.post("/auth/refresh_token", async (req, res) => {
         if (refresh_token.expired) {
           return res
             .status(401)
-            .json({ error: true, message: "Token is expired" });
+            .json({ error: true, message: "Refresh token is expired." });
         } else {
           jwt.verify(
             refresh_token.token,
             config.user.jwt_auth_secret,
-            (err, verified_token) => {
+            (error, verified_token) => {
               if (
                 Math.round(Date.now() / 1000) - verified_token.iat >=
                 config.user.jwt_refresh_token_expiration
@@ -44,7 +44,7 @@ router.post("/auth/refresh_token", async (req, res) => {
       } else {
         return res
           .status(401)
-          .json({ error: true, message: "No such valid token" });
+          .json({ error: true, message: "No such valid refresh token." });
       }
     });
 });

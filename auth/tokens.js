@@ -60,7 +60,9 @@ function expire_user_tokens(userid, reason, exclude_tokens) {
         return resolve();
       })
       .catch((error) => {
-        return reject("Unable to expire refresh token.");
+        return reject(
+          new Error("Unable to expire refresh token.", { cause: error })
+        );
       });
   });
 }
@@ -77,7 +79,9 @@ function expire_refresh_tokens(refresh_tokens, reason) {
         return resolve();
       })
       .catch((error) => {
-        return reject("Unable to expire refresh token.");
+        return reject(
+          new Error("Unable to expire refresh token.", { cause: error })
+        );
       });
   });
 }

@@ -27,8 +27,8 @@ const db = require("./db/db.js");
 //           .then((updated_user) => {
 //             resolve(updated_user);
 //           })
-//           .catch((err) => {
-//             reject(err);
+//           .catch((error) => {
+//             reject(error);
 //           });
 //         break;
 //       case "ip":
@@ -56,8 +56,8 @@ const db = require("./db/db.js");
 //           .then((updated_user) => {
 //             resolve(updated_user);
 //           })
-//           .catch((err) => {
-//             reject(err);
+//           .catch((error) => {
+//             reject(error);
 //           });
 //         break;
 //       case "completedCaptcha":
@@ -81,8 +81,8 @@ const db = require("./db/db.js");
 //           .then((updated_user) => {
 //             resolve(updated_user);
 //           })
-//           .catch((err) => {
-//             reject(err);
+//           .catch((error) => {
+//             reject(error);
 //           });
 //         break;
 //       case "contentVerified":
@@ -111,8 +111,8 @@ const db = require("./db/db.js");
 //           .then((updated_user) => {
 //             resolve(updated_user);
 //           })
-//           .catch((err) => {
-//             reject(err);
+//           .catch((error) => {
+//             reject(error);
 //           });
 //         break;
 //       case "contentRemoved":
@@ -141,8 +141,8 @@ const db = require("./db/db.js");
 //           .then((updated_user) => {
 //             resolve(updated_user);
 //           })
-//           .catch((err) => {
-//             reject(err);
+//           .catch((error) => {
+//             reject(error);
 //           });
 //         break;
 //     }

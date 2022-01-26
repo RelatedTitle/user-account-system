@@ -122,7 +122,7 @@ app.use(function (req, res, next) {
 app.listen(config.port);
 
 const download = (url, path, callback) => {
-  request.head(url, (err, res, body) => {
+  request.head(url, (error, res, body) => {
     request(url).pipe(fs.createWriteStream(path)).on("close", callback);
   });
 };

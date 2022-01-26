@@ -8,17 +8,17 @@ router.post("/auth/reset_password", async (req, res) => {
   if (!config.user.password_regex.test(req.body.password)) {
     return res.status(400).json({
       error: true,
-      message: "Invalid password",
+      message: "Invalid password.",
     });
   }
   jwt.verify(
     req.body.password_reset_token,
     config.user.jwt_password_reset_secret,
-    (err, verified_token) => {
-      if (err) {
+    (error, verified_token) => {
+      if (error) {
         return res.status(401).json({
           error: true,
-          message: "Tampered or invalid token",
+          message: error.message,
         });
       } else {
         password_reset
@@ -30,13 +30,13 @@ router.post("/auth/reset_password", async (req, res) => {
           .then(() => {
             return res.status(200).json({
               error: false,
-              message: "Password changed successfully",
+              message: "Password changed successfully.",
             });
           })
-          .catch((err) => {
+          .catch((error) => {
             return res.status(401).json({
               error: true,
-              message: err,
+              message: error.message,
             });
           });
       }

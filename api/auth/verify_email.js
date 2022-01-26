@@ -11,11 +11,11 @@ router.post(
       req.params["email_verification_token"] ||
         req.body.email_verification_token,
       config.user.jwt_email_verification_secret,
-      (err, verified_token) => {
-        if (err) {
+      (error, verified_token) => {
+        if (error) {
           return res.status(401).json({
             error: true,
-            message: "Tampered or invalid token",
+            message: "Tampered or invalid token.",
           });
         } else {
           email_verification
@@ -28,13 +28,13 @@ router.post(
             .then(() => {
               return res.status(200).json({
                 error: false,
-                message: "Email verified successfully",
+                message: "Email verified successfully.",
               });
             })
-            .catch((err) => {
+            .catch((error) => {
               return res.status(401).json({
                 error: true,
-                message: err,
+                message: error.message,
               });
             });
         }

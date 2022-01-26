@@ -12,13 +12,13 @@ router.post(
       if (!user.MFA_secret) {
         return res.status(403).json({
           error: true,
-          message: "2FA secret not requested",
+          message: "2FA secret not requested.",
         });
       }
       if (user.MFA_active.active) {
         return res.status(403).json({
           error: true,
-          message: "2FA is already enabled",
+          message: "2FA is already enabled.",
         });
       }
       if (otp.authenticator.check(req.body.totp_code, user.MFA_secret)) {
@@ -35,14 +35,10 @@ router.post(
       } else {
         return res.status(403).json({
           error: false,
-          message: "Incorrect TOTP code",
+          message: "Incorrect TOTP code.",
         });
       }
     });
-  },
-  function (err, req, res, next) {
-    // Handle error
-    return res.status(401).send({ error: true, message: err });
   }
 );
 

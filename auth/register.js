@@ -74,26 +74,32 @@ async function register_user(
       });
     } else {
       // If no avatar url is provided, try to fetch the user's avatar from gravatar.
+      avatar_url = avatar.gravatar_image(user_email);
       await avatar
-        .download_avatar(avatar.gravatar_image(user_email))
+        .download_avatar(avatar_url)
         .then((downloaded_avatar) => {
           // User does have a gravatar image.
           user_avatar = downloaded_avatar;
           if (config.user.avatar.store_gravatar) {
             store_avatar = true;
           }
-          avatar_url = gravatar_avatar_url;
         })
-        .catch((err) => {
+        .catch(() => {
           // User does not have a gravatar image linked to their email or the image couldn't be stored/processed
           avatar_url = undefined;
         });
     }
     // Gets email info:
     // Generates salt with defined salt rounds in config:
-    bcrypt.genSalt(config.user.bcrypt_salt_rounds, function (err, salt) {
+    bcrypt.genSalt(config.user.bcrypt_salt_rounds, function (error, salt) {
+      if (error) {
+        return reject(new Error("Error generating salt.", { cause: error }));
+      }
       // Hashes password:
-      bcrypt.hash(user_password, salt, function (err, hashed_password) {
+      bcrypt.hash(user_password, salt, function (error, hashed_password) {
+        if (error) {
+          return reject(new Error("Error hashing password.", { cause: error }));
+        }
         //Stores user in DB:
         let new_user = db.user.build({
           userid: userid,
@@ -165,10 +171,10 @@ async function register_user(
             // User registered without sending an email verification token.
             return resolve(registered_user);
           })
-          .catch((err) => {
-            switch (Object.keys(err.fields)[0]) {
+          .catch((error) => {
+            switch (Object.keys(error.fields)[0]) {
               case "email":
-                return reject("Email already exists");
+                return reject(new Error("Email already in use."));
               case "username":
                 if (oauth_data) {
                   // If registering through an OAuth provider, recursively call register_user without providing a username (so it uses the userid).
@@ -176,15 +182,21 @@ async function register_user(
                     .then((registered_user) => {
                       return resolve(registered_user);
                     })
-                    .catch((err) => {
-                      return reject(err);
+                    .catch((error) => {
+                      return reject(
+                        new Error("Error re-registering user through OAuth.", {
+                          cause: error,
+                        })
+                      );
                     });
                   break;
                 } else {
-                  return reject("Username already exists");
+                  return reject(new Error("Username already in use."));
                 }
               default:
-                return reject("Unknown Error");
+                return reject(
+                  new Error("Error registering user.", { cause: error })
+                );
             }
           });
       });

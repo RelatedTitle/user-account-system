@@ -12,7 +12,7 @@ router.post(
       if (!user.MFA_active) {
         return res.status(403).json({
           error: true,
-          message: "2FA is not enabled",
+          message: "2FA is not enabled.",
         });
       }
 
@@ -24,20 +24,16 @@ router.post(
             // Set 2FA as inactive
             return res.status(200).json({
               error: false,
-              message: "2FA disabled successfully",
+              message: "2FA disabled successfully.",
             });
           });
       } else {
         return res.status(403).json({
           error: false,
-          message: "Incorrect TOTP code",
+          message: "Incorrect TOTP code.",
         });
       }
     });
-  },
-  function (err, req, res, next) {
-    // Handle error
-    return res.status(401).send({ error: true, message: err });
   }
 );
 

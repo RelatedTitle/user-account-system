@@ -11,7 +11,7 @@ router.post(
     if (!config.user.email_regex.test(req.body.email.toLowerCase())) {
       return res.status(400).json({
         error: true,
-        message: "Invalid email",
+        message: "Invalid email address.",
       });
     }
     email_verification
@@ -19,16 +19,12 @@ router.post(
       .then((email_verification_token) => {
         res.status(200).json({
           error: false,
-          message: "Email verification sent successfully",
+          message: "Email verification sent successfully.",
         });
       })
-      .catch((err) => {
-        res.status(400).json({ error: true, message: err });
+      .catch((error) => {
+        res.status(400).json({ error: true, message: error.message });
       });
-  },
-  function (err, req, res, next) {
-    // Handle error
-    return res.status(401).send({ error: true, message: err });
   }
 );
 
