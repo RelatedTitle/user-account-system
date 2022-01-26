@@ -32,16 +32,13 @@ router.post("/auth/login", check_captcha, (req, res, next) => {
       }
 
       // Check if the user IP is authorized
-      let user_ip_error = null;
-      await check_user_ip(user, req.ip).catch((error) => {
-        user_ip_error = error;
-      });
-      if (user_ip_error !== null) {
+      try {
+        await check_user_ip(user, req.ip);
+      } catch (error) {
         return res
           .status(403)
           .json({ error: true, message: user_ip_error.message });
       }
-
       req.login(user, { session: false }, async (error) => {
         if (error) {
           return res.status(403).json({ error: true, message: error.message });

@@ -32,21 +32,19 @@ passport.use(
             email: email.get_email_info(user_email).realemail,
           },
         });
-        if (current_user) {
-          // User found
-          if (await bcrypt.compare(password, current_user.password)) {
-            // Password Correct
-            return done(null, current_user, {
-              message: "Login was successful.",
-            });
-          } else {
-            // Password Incorrect
-            return done(null, false, { message: "Password Incorrect." });
-          }
-        } else {
+        if (!current_user) {
           // User Not found
           return done(null, false, { message: "User not found." });
         }
+        // User found
+        if (await bcrypt.compare(password, current_user.password)) {
+          // Password Correct
+          return done(null, current_user, {
+            message: "Login was successful.",
+          });
+        }
+        // Password Incorrect
+        return done(null, false, { message: "Password Incorrect." });
       } catch (error) {
         return done(error);
       }
@@ -75,14 +73,15 @@ passport.use(
           return done("Access token expired.");
         } else {
           if (token.type != "access") {
+            // The token is not an access token.
             return done(
               `Incorrect token type. Expected "access", got "${token.type}."`
             );
-          } else {
-            user = token.user;
-            user.refresh_token = token.refresh_token;
-            return done(null, user);
           }
+          // Access token is valid.
+          user = token.user;
+          user.refresh_token = token.refresh_token;
+          return done(null, user);
         }
       } catch (error) {
         done(error);

@@ -23,6 +23,12 @@ router.get(
           access_token: tokens.access_token,
           refresh_token: tokens.refresh_token,
         });
+      })
+      .catch((error) => {
+        return res.json({
+          error: true,
+          message: error.message,
+        });
       });
   }
 );

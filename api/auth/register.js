@@ -61,13 +61,13 @@ router.post("/auth/register", check_captcha, async (req, res) => {
     })
     .catch((error) => {
       switch (error.message) {
-        case "Username is already in use.":
+        case "Username already in use.":
           return res.status(409).json({
             error: true,
             message: error.message,
           });
           break;
-        case "Email is already in use.":
+        case "Email already in use.":
           return res.status(409).json({
             error: true,
             message: error.message,
