@@ -14,7 +14,7 @@ config.cloudflare.ip_geo_enabled = false;
 
 // General:
 
-config.fqdn = "http://localhostm"; // Frontend FQDN
+config.fqdn = "http://localhost"; // Frontend FQDN
 config.backend_fqdn = "http://localhost"; // Backend FQDN
 config.servicename = "RelatedTechNetwork";
 config.usingproxy = config.cloudflare.enabled || false;
@@ -55,12 +55,12 @@ config.db.connection_string =
 // User
 
 config.user.id_length = 10;
-config.user.id_alphabet = "";
+config.user.id_alphabet = "0123456789";
 config.user.bcrypt_salt_rounds = 10;
-config.user.jwt_auth_secret = "";
-config.user.jwt_email_verification_secret = "";
-config.user.jwt_password_reset_secret = "";
-config.user.jwt_new_ip_secret = "";
+config.user.jwt_auth_secret = "test_secret";
+config.user.jwt_email_verification_secret = "test_secret";
+config.user.jwt_password_reset_secret = "test_secret";
+config.user.jwt_new_ip_secret = "test_secret";
 config.user.jwt_access_token_expiration = 3600; // In seconds (3600 = 1 hour)
 config.user.jwt_refresh_token_expiration = 2678400; // In seconds (2678400 = 31 days)
 config.user.google_client_id = "";
