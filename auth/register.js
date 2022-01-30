@@ -114,6 +114,7 @@ async function register_user(
       password: hashed_password,
       creation_date: current_date,
       oauth: {},
+      MFA_active: false,
     });
     if (oauth_data) {
       // If registering through an OAuth provider.
@@ -150,7 +151,7 @@ async function register_user(
       // Error saving user to database
       switch (Object.keys(error.fields)[0]) {
         case "email":
-          return reject(new Error("Email already in use."));
+          return reject(new Error("Email address already in use."));
         case "username":
           if (oauth_data) {
             // If registering through an OAuth provider, recursively call register_user without providing a username (so it uses the userid).
@@ -200,7 +201,7 @@ async function register_user(
     // Send email verification token (if not verified already):
     if (!registered_user.email_verified) {
       try {
-        email_verification.generate_email_verification_token(
+        await email_verification.generate_email_verification_token(
           registered_user.userid,
           registered_user.email
         );

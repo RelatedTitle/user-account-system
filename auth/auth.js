@@ -44,7 +44,7 @@ passport.use(
           });
         }
         // Password Incorrect
-        return done(null, false, { message: "Password Incorrect." });
+        return done(null, false, { message: "Incorrect password." });
       } catch (error) {
         return done(error);
       }

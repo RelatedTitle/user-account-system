@@ -1,5 +1,5 @@
 const { DataTypes } = require("sequelize");
-const sequelize = require("../db_connection");
+const sequelize = require("../db_connection").sequelize;
 
 const user = sequelize.define("user", {
   userid: {
@@ -20,7 +20,7 @@ const user = sequelize.define("user", {
   email_provider: { type: DataTypes.STRING },
   email_verified: { type: DataTypes.BOOLEAN },
   MFA_secret: { type: DataTypes.STRING },
-  MFA_active: { type: DataTypes.BOOLEAN },
+  MFA_active: { type: DataTypes.BOOLEAN, defaultValue: false },
   password: { type: DataTypes.STRING },
   creation_date: { type: DataTypes.DATE },
   avatar_url: { type: DataTypes.STRING },

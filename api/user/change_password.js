@@ -36,7 +36,7 @@ router.post(
     }
     // Check if the old password is correct.
     try {
-      results = bcrypt.compare(req.body.old_password, user.password);
+      results = await bcrypt.compare(req.body.old_password, user.password);
     } catch (error) {
       return res.status(500).json({
         error: true,
@@ -77,7 +77,7 @@ router.post(
         { password: hashed_password },
         { where: { userid: req.user._id } }
       );
-      auth_token.expire_user_tokens(req.user._id, "Password Change", [
+      await auth_token.expire_user_tokens(req.user._id, "Password Change", [
         req.user.refresh_token,
       ]); // Expire all tokens for this user. (Except the current one.)
       send_password_change_confirmation_email(user.email); // Send password change confirmation email.

@@ -6,10 +6,10 @@ const send_email_verification_email =
   require("../email/templates/email_verification.js").send_email_verification_email;
 
 async function generate_email_verification_token(userid, email) {
-  return new Promise(function (resolve, reject) {
-    // Expire previous tokens asynchronously:
+  return new Promise(async function (resolve, reject) {
+    // Expire previous tokens:
     try {
-      db.email_verification_token.update(
+      await db.email_verification_token.update(
         { expired: true },
         { where: { userUserid: userid, expired: false } }
       );
@@ -26,7 +26,7 @@ async function generate_email_verification_token(userid, email) {
       config.user.jwt_email_verification_secret
     );
     try {
-      db.email_verification_token.create({
+      await db.email_verification_token.create({
         userUserid: userid,
         email: email,
         token: token,
@@ -46,8 +46,8 @@ async function generate_email_verification_token(userid, email) {
 }
 
 async function check_email_verification_token(userid, user_email, token) {
-  email_info = email.get_email_info(user_email);
   return new Promise(async function (resolve, reject) {
+    email_info = email.get_email_info(user_email);
     try {
       email_verification_token = await db.email_verification_token.findOne({
         where: { token: token },
@@ -101,7 +101,7 @@ async function check_email_verification_token(userid, user_email, token) {
       // Check if that account's email is verified
       if (user.email_verified) {
         return reject(
-          new Error("Email address already in use by another account")
+          new Error("Email address already in use by another account.")
         );
       }
       // If it is not verified, remove email from the unverified account and add it to the verified one.
@@ -128,11 +128,11 @@ async function check_email_verification_token(userid, user_email, token) {
           },
           { where: { userid: userid } }
         );
-        return resolve();
       } catch (error) {
         return reject(new Error("Failed to verify email.", { cause: error }));
       }
     }
+    return resolve();
   });
 }
 // Callback hell ;(

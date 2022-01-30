@@ -5,4 +5,4 @@ const sequelize = new Sequelize(config.db.connection_string, {
   logging: false,
 });
 
-module.exports = sequelize;
+module.exports = { sequelize };

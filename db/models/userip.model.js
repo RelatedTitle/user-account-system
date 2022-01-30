@@ -1,5 +1,5 @@
 const { Sequelize, DataTypes } = require("sequelize");
-const sequelize = require("../db_connection");
+const sequelize = require("../db_connection").sequelize;
 
 const userip = sequelize.define("userip", {
   uuid: {

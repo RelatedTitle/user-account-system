@@ -24,7 +24,6 @@ async function generate_password_reset_token(email) {
       send_password_reset_email_no_user(user_email);
       return reject(new Error("No such user."));
     }
-
     try {
       // Expire previous tokens:
       await db.password_reset_token.update(
@@ -44,6 +43,7 @@ async function generate_password_reset_token(email) {
     try {
       // Create new password resettoken:
       current_password_reset_token = await db.password_reset_token.create({
+        userUserid: user.userid,
         email: user_email,
         token: token,
         expired: false,
@@ -77,8 +77,8 @@ async function check_password_reset_token(email, password, token) {
     if (!password_reset_token) {
       return reject(new Error("No such valid password reset token."));
     }
-    if (password_reset_token !== email) {
-      return reject(new Error("Password reset token does not match user"));
+    if (password_reset_token.email !== email) {
+      return reject(new Error("Password reset token does not match user."));
     }
 
     if (password_reset_token.expired) {
@@ -133,7 +133,7 @@ async function check_password_reset_token(email, password, token) {
       return reject(new Error("Error saving user.", { cause: error }));
     }
     try {
-      auth_token.expire_user_tokens(user.userid, "Password Reset"); // Expire all user tokens.
+      await auth_token.expire_user_tokens(user.userid, "Password Reset"); // Expire all user tokens.
     } catch (error) {
       return reject(new Error("Error expiring user tokens.", { cause: error }));
     }

@@ -18,13 +18,13 @@ router.post("/auth/refresh_token", async (req, res) => {
   // If there is no refresh token, return an error
   if (!refresh_token) {
     return res
-      .status(401)
+      .status(403)
       .json({ error: true, message: "No such valid refresh token." });
   }
   // If the refresh token has expired, return an error
   if (refresh_token.expired) {
     return res
-      .status(401)
+      .status(403)
       .json({ error: true, message: "Refresh token is expired." });
   }
   // Verify and decode the refresh token.
@@ -46,7 +46,7 @@ router.post("/auth/refresh_token", async (req, res) => {
     // If the refresh token's time of issue has exceeded the expiration time set in config.js.
     auth_token.expire_refresh_tokens([refresh_token.token], "Timeout"); // Expire the refresh token in the database.
     return res
-      .status(401)
+      .status(403)
       .json({ error: true, message: "Refresh token is expired." }); // Return an error (without waiting until the token is expired in the database).
   }
   // Issue new access token:

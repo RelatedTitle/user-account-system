@@ -12,6 +12,9 @@ let transporter = mailer.createTransport({
 });
 
 async function send_password_reset_email_no_user(to) {
+  if (!config.email.send_email) {
+    return;
+  }
   return await transporter.sendMail({
     from: config.email.from,
     to: to,
