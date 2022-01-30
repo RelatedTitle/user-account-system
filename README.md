@@ -1,4 +1,5 @@
 # User Account System
+[![Tests](https://github.com/RelatedTitle/user-account-system/actions/workflows/tests.yml/badge.svg)](https://github.com/RelatedTitle/user-account-system/actions/workflows/tests.yml)
 
 ### [Setup](https://github.com/RelatedTitle/user-account-system/wiki/Setup)
 ### [API Docs](https://github.com/RelatedTitle/user-account-system/wiki/API-Docs)
