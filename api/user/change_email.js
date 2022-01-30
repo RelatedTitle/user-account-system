@@ -53,7 +53,11 @@ router.post(
         });
       })
       .catch((error) => {
+<<<<<<< HEAD
+        res.status(400).json({ error: true, message: error.message });
+=======
         return res.status(400).json({ error: true, message: error.message });
+>>>>>>> efdc5c6e5e68a8f6d1ef80b4fb62efd8e81914e4
       });
   }
 );

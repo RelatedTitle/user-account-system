@@ -71,7 +71,11 @@ router.post("/auth/register", check_captcha, async (req, res) => {
             message: error.message,
           });
           break;
+<<<<<<< HEAD
+        case "Email already in use.":
+=======
         case "Email address already in use.":
+>>>>>>> efdc5c6e5e68a8f6d1ef80b4fb62efd8e81914e4
           return res.status(409).json({
             error: true,
             message: error.message,

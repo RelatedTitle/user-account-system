@@ -6,10 +6,17 @@ const send_email_verification_email =
   require("../email/templates/email_verification.js").send_email_verification_email;
 
 async function generate_email_verification_token(userid, email) {
+<<<<<<< HEAD
+  return new Promise(function (resolve, reject) {
+    // Expire previous tokens asynchronously:
+    try {
+      db.email_verification_token.update(
+=======
   return new Promise(async function (resolve, reject) {
     // Expire previous tokens:
     try {
       await db.email_verification_token.update(
+>>>>>>> efdc5c6e5e68a8f6d1ef80b4fb62efd8e81914e4
         { expired: true },
         { where: { userUserid: userid, expired: false } }
       );
@@ -26,7 +33,11 @@ async function generate_email_verification_token(userid, email) {
       config.user.jwt_email_verification_secret
     );
     try {
+<<<<<<< HEAD
+      db.email_verification_token.create({
+=======
       await db.email_verification_token.create({
+>>>>>>> efdc5c6e5e68a8f6d1ef80b4fb62efd8e81914e4
         userUserid: userid,
         email: email,
         token: token,
@@ -46,8 +57,13 @@ async function generate_email_verification_token(userid, email) {
 }
 
 async function check_email_verification_token(userid, user_email, token) {
+<<<<<<< HEAD
+  email_info = email.get_email_info(user_email);
+  return new Promise(async function (resolve, reject) {
+=======
   return new Promise(async function (resolve, reject) {
     email_info = email.get_email_info(user_email);
+>>>>>>> efdc5c6e5e68a8f6d1ef80b4fb62efd8e81914e4
     try {
       email_verification_token = await db.email_verification_token.findOne({
         where: { token: token },
@@ -101,7 +117,11 @@ async function check_email_verification_token(userid, user_email, token) {
       // Check if that account's email is verified
       if (user.email_verified) {
         return reject(
+<<<<<<< HEAD
+          new Error("Email address already in use by another account")
+=======
           new Error("Email address already in use by another account.")
+>>>>>>> efdc5c6e5e68a8f6d1ef80b4fb62efd8e81914e4
         );
       }
       // If it is not verified, remove email from the unverified account and add it to the verified one.
@@ -128,11 +148,18 @@ async function check_email_verification_token(userid, user_email, token) {
           },
           { where: { userid: userid } }
         );
+<<<<<<< HEAD
+        return resolve();
+=======
+>>>>>>> efdc5c6e5e68a8f6d1ef80b4fb62efd8e81914e4
       } catch (error) {
         return reject(new Error("Failed to verify email.", { cause: error }));
       }
     }
+<<<<<<< HEAD
+=======
     return resolve();
+>>>>>>> efdc5c6e5e68a8f6d1ef80b4fb62efd8e81914e4
   });
 }
 // Callback hell ;(
