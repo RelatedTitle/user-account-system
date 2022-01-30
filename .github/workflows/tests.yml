@@ -36,7 +36,7 @@ jobs:
 
       - name: Prepare config file.
         # Copy the test config file.
-        run: cd ./test/test_config.js ./config.js
+        run: cp ./test/test_config.js ./config.js
 
       - name: Run tests.
         run: npm test
