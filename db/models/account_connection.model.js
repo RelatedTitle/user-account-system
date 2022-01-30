@@ -1,5 +1,5 @@
 const { DataTypes } = require("sequelize");
-const sequelize = require("../db_connection");
+const sequelize = require("../db_connection").sequelize;
 
 const account_connections = sequelize.define("account_connections", {
   id: { type: DataTypes.DECIMAL, unique: true, primaryKey: true },

@@ -10,6 +10,7 @@ config.email = {};
 config.fqdn = "http://localhost"; // Change this
 config.servicename = "User Account System"; // Change this
 config.usingproxy = false;
+config.port = 80;
 
 // Rate Limiting:
 

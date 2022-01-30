@@ -27,7 +27,7 @@ function process_avatar(avatar) {
         return resolve(processed_avatar);
       })
       .catch((error) => {
-        return reject(error);
+        return reject(new Error("Error processing avatar.", { cause: error }));
       });
   });
 }
@@ -39,8 +39,10 @@ function store_locally(avatar, filename) {
     };
     try {
       fs.writeFile(`./content/avatars/${filename}`, avatar, file_stored);
-    } catch (err) {
-      return reject("Failed to store avatar.");
+    } catch (error) {
+      return reject(
+        new Error("Failed to store avatar locally.", { cause: error })
+      );
     }
   });
 }
@@ -57,11 +59,13 @@ function store_s3(avatar, filename) {
         Key: `avatars/${filename}`,
         Body: avatar,
       },
-      function (err, data) {
-        if (!err) {
+      function (error, data) {
+        if (!error) {
           return resolve(data.Location);
         }
-        return reject("Failed to store avatar.");
+        return reject(
+          new Error("Failed to store avatar on S3.", { cause: error })
+        );
       }
     );
   });
@@ -102,7 +106,9 @@ function download_avatar(avatar_url) {
         return resolve(response.data);
       })
       .catch((error) => {
-        return reject(error);
+        return reject(
+          new Error("Failed to download avatar.", { cause: error })
+        );
       });
   });
 }
@@ -116,7 +122,7 @@ function upload_avatar(avatar, avatar_url) {
         avatar = await download_avatar(avatar_url);
       } catch (error) {
         // Failed to download avatar from URL
-        return reject("Failed to download avatar.");
+        return reject(error);
       }
     }
     // Process avatar
@@ -124,12 +130,12 @@ function upload_avatar(avatar, avatar_url) {
       avatar = await process_avatar(avatar);
     } catch (error) {
       // Failed to process avatar
-      return reject("Failed to process avatar.");
+      return reject(error);
     }
 
     if (avatar.toString().length > config.user.avatar.max_size) {
       // Avatar is too large
-      return reject("Avatar is too large.");
+      return reject(new Error("Avatar is too large."));
     }
 
     // Store avatar

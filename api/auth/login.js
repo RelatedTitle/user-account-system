@@ -9,11 +9,11 @@ const otp = require("otplib");
 const check_captcha = require("../middleware/captcha.js");
 
 router.post("/auth/login", check_captcha, (req, res, next) => {
-  passport.authenticate("login", async (err, user, info) => {
+  passport.authenticate("login", async (error, user, info) => {
     try {
-      if (err || !user) {
+      if (error || !user) {
         // Error or no user
-        error = new Error(err);
+        error = new Error(error);
         return res.status(403).json({ error: true, message: info.message });
       }
 
@@ -21,28 +21,25 @@ router.post("/auth/login", check_captcha, (req, res, next) => {
         if (!req.body.totp_code) {
           return res.status(403).json({
             error: true,
-            message: "2FA is active but no code was provided",
+            message: "2FA is active but no code was provided.",
           });
         }
         if (!otp.authenticator.check(req.body.totp_code, user.MFA_secret)) {
           return res
             .status(403)
-            .json({ error: true, message: "Incorrect TOTP code" });
+            .json({ error: true, message: "Incorrect TOTP code." });
         }
       }
 
       // Check if the user IP is authorized
-      let user_ip_response = null;
-      await check_user_ip(user, req.ip).catch((response) => {
-        user_ip_response = response;
-      });
-      if (user_ip_response !== null) {
-        return res.status(403).json(user_ip_response);
+      try {
+        await check_user_ip(user, req.ip);
+      } catch (error) {
+        return res.status(403).json({ error: true, message: error.message });
       }
-
-      req.login(user, { session: false }, async (err) => {
-        if (err) {
-          return res.status(403).json({ error: true, message: "Error" });
+      req.login(user, { session: false }, async (error) => {
+        if (error) {
+          return res.status(403).json({ error: true, message: error.message });
         }
         auth_token.issue_refresh_jwt(user.userid, user.email).then((tokens) => {
           return res.json({
@@ -52,8 +49,8 @@ router.post("/auth/login", check_captcha, (req, res, next) => {
           });
         });
       });
-    } catch (err) {
-      return res.status(500).json({ error: true, message: "Error" });
+    } catch (error) {
+      return res.status(500).json({ error: true, message: error.message });
     }
   })(req, res, next);
 });

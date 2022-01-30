@@ -14,7 +14,7 @@ router.post("/auth/authorize_new_IP", async (req, res) => {
   } catch (error) {
     return res.status(401).json({
       error: true,
-      message: "Tampered or invalid token",
+      message: "Tampered or invalid token.",
     });
   }
   new_IP
@@ -26,13 +26,13 @@ router.post("/auth/authorize_new_IP", async (req, res) => {
     .then(() => {
       return res.status(200).json({
         error: false,
-        message: "New IP address authorized successfully",
+        message: "New IP address authorized successfully.",
       });
     })
-    .catch((err) => {
+    .catch((error) => {
       return res.status(401).json({
         error: true,
-        message: err,
+        message: error.message,
       });
     });
 });

@@ -13,14 +13,13 @@ async function check_user_ip(user, ip) {
           await new_IP
             .generate_new_IP_token(user.userid, user.email, ip)
             .then(() => {
-              return reject({
-                error: true,
-                message: "New IP address, authorization required",
-              });
+              return reject(
+                new Error("New IP address, authorization required.")
+              );
             });
         } else if (!userip.authorized) {
           // If the IP is in the userIPs table but not authorized
-          return reject({ error: true, message: "IP address not authorized" });
+          return reject(new Error("IP address not authorized."));
         } else {
           // If the IP is in the userIPs table and authorized
           return resolve();

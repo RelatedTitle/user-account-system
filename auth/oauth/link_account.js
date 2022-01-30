@@ -15,7 +15,7 @@ function link_account(user, profile, provider) {
         }
       });
     if (linked) {
-      return reject("Account already linked");
+      return reject(new Error("Account already linked."));
     }
     // If the provider is GitHub, we know for a fact that the email is verified since it is required to use OAuth. (https://docs.github.com/en/github/authenticating-to-github/keeping-your-account-and-data-secure/authorizing-oauth-apps)
     // If the provider is Google, we know whether the email is verified or not by profile.email_verified.
@@ -38,14 +38,16 @@ function link_account(user, profile, provider) {
         id: profile.id,
         data: profile,
       })
-      .catch((err) => {
-        if (Object.keys(err.fields)[0] == "id") {
+      .catch((error) => {
+        if (Object.keys(error.fields)[0] == "id") {
           // The update failed because the OAuth id has to be unique, if it isn't, it means that the OAuth account has already been linked.
           return reject(
-            "This account has already been linked to another account"
+            new Error(
+              "This account has already been linked to another account."
+            )
           );
         }
-        return reject("Error linking account");
+        return reject(new Error("Error linking account.", error));
       });
     return resolve(user);
   });
@@ -79,14 +81,16 @@ function link_account_email(profile, provider, email) {
               .then(() => {
                 user.email_verified = true;
               })
-              .catch(() => {
-                return reject("Error verifying email");
+              .catch((error) => {
+                return reject(
+                  new Error("Error verifying email.", { cause: error })
+                );
               });
           }
           return resolve(user);
         })
-        .catch(() => {
-          return reject("Error linking account");
+        .catch((error) => {
+          return reject(new Error("Error linking account.", error));
         });
     });
   });

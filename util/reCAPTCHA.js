@@ -12,8 +12,10 @@ function verify(secret, recaptcha_responsee) {
           return resolve(res.data);
         }
       })
-      .catch(() => {
-        return reject("CAPTCHA Error");
+      .catch((error) => {
+        return reject(
+          new Error("Error verifying reCAPTCHA response.", { cause: error })
+        );
       });
   });
 }

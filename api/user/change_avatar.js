@@ -24,7 +24,7 @@ router.post(
     try {
       avatar_url = await avatar.upload_avatar(req.file.buffer);
     } catch (error) {
-      return res.status(400).json({ error: true, message: error });
+      return res.status(400).json({ error: true, message: error.message });
     }
     // Store avatar url in database.
     try {
@@ -33,17 +33,14 @@ router.post(
         { where: { userid: req.user._id } }
       );
     } catch (error) {
-      return res
-        .status(400)
-        .json({ error: true, message: "Failed to update user." });
+      return res.status(500).json({
+        error: true,
+        message: "Failed to store avatar url in database.",
+      });
     }
     return res
       .status(200)
       .json({ error: false, message: "Avatar uploaded successfully." });
-  },
-  function (err, req, res, next) {
-    // Handle error
-    return res.status(401).send({ error: true, message: err });
   }
 );
 

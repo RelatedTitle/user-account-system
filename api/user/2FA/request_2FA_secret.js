@@ -9,13 +9,11 @@ router.post(
   passport.authenticate("jwt", { failWithError: true, session: false }),
   (req, res, next) => {
     db.user.findOne({ where: { userid: req.user._id } }).then((user) => {
-      if (!user.MFA_secret) {
-        if (user.MFA_active) {
-          return res.status(403).json({
-            error: true,
-            message: "2FA is already enabled",
-          });
-        }
+      if (user.MFA_active) {
+        return res.status(403).json({
+          error: true,
+          message: "2FA is already enabled.",
+        });
       }
       secret = otp.authenticator.generateSecret();
       db.user
@@ -33,10 +31,6 @@ router.post(
           });
         });
     });
-  },
-  function (err, req, res, next) {
-    // Handle error
-    return res.status(401).send({ error: true, message: err });
   }
 );
 

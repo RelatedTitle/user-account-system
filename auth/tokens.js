@@ -38,6 +38,11 @@ function issue_refresh_jwt(userid, email) {
           access_token: access_token,
           refresh_token: refresh_token.token,
         });
+      })
+      .catch((error) => {
+        return reject(
+          new Error("Failed to create refresh token.", { cause: error })
+        );
       });
   });
 }
@@ -52,7 +57,7 @@ function expire_user_tokens(userid, reason, exclude_tokens) {
           where: {
             userUserid: userid,
             expired: false,
-            [db.Op.not]: [{ token: exclude_tokens || [""] }],
+            token: { [db.Op.notIn]: exclude_tokens || [] },
           },
         }
       )
@@ -60,7 +65,9 @@ function expire_user_tokens(userid, reason, exclude_tokens) {
         return resolve();
       })
       .catch((error) => {
-        return reject("Unable to expire refresh token.");
+        return reject(
+          new Error("Unable to expire refresh token.", { cause: error })
+        );
       });
   });
 }
@@ -71,13 +78,15 @@ function expire_refresh_tokens(refresh_tokens, reason) {
     db.refresh_token
       .update(
         { expired: true, expiry_date: new Date(), expiry_reason: reason },
-        { where: { token: refresh_tokens } }
+        { where: { token: refresh_tokens, expired: false } }
       )
       .then(() => {
         return resolve();
       })
       .catch((error) => {
-        return reject("Unable to expire refresh token.");
+        return reject(
+          new Error("Unable to expire refresh token.", { cause: error })
+        );
       });
   });
 }

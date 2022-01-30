@@ -33,7 +33,7 @@ async function check_captcha(req, res, next) {
   } else {
     return res.status(400).json({
       error: true,
-      message: "No CAPTCHA response provided",
+      message: "No CAPTCHA response provided.",
     });
   }
 
@@ -41,7 +41,7 @@ async function check_captcha(req, res, next) {
     if (!config.hcaptcha.enabled) {
       return res.status(400).json({
         error: true,
-        message: "hCaptcha is not enabled",
+        message: "hCaptcha is not enabled.",
       });
     }
     hcaptcha
@@ -54,13 +54,13 @@ async function check_captcha(req, res, next) {
         // Captcha is invalid.
         return res.status(409).json({
           error: true,
-          message: "CAPTCHA Incorrect",
+          message: "CAPTCHA Incorrect.",
         });
       })
-      .catch((err) => {
+      .catch((error) => {
         return res.status(500).json({
           error: true,
-          message: "CAPTCHA Error",
+          message: error.message,
         });
       });
   }
@@ -69,7 +69,7 @@ async function check_captcha(req, res, next) {
     if (!config.recaptcha.enabled) {
       return res.status(400).json({
         error: true,
-        message: "reCAPTCHA is not enabled",
+        message: "reCAPTCHA is not enabled.",
       });
     }
     recaptcha
@@ -82,13 +82,13 @@ async function check_captcha(req, res, next) {
         // Captcha is invalid.
         return res.status(409).json({
           error: true,
-          message: "CAPTCHA Incorrect",
+          message: "CAPTCHA Incorrect.",
         });
       })
-      .catch((err) => {
+      .catch((error) => {
         return res.status(500).json({
           error: true,
-          message: "CAPTCHA Error",
+          message: "CAPTCHA Error.",
         });
       });
   }
