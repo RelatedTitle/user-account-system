@@ -57,6 +57,10 @@ router.post("/auth/register", check_captcha, async (req, res) => {
             access_token: tokens.access_token,
             refresh_token: tokens.refresh_token,
           });
+        })
+        .catch((error) => {
+          // Failed to issue refresh token.
+          res.status(500).json({ error: true, message: error.message });
         });
     })
     .catch((error) => {
@@ -67,7 +71,11 @@ router.post("/auth/register", check_captcha, async (req, res) => {
             message: error.message,
           });
           break;
+<<<<<<< HEAD
         case "Email already in use.":
+=======
+        case "Email address already in use.":
+>>>>>>> efdc5c6e5e68a8f6d1ef80b4fb62efd8e81914e4
           return res.status(409).json({
             error: true,
             message: error.message,

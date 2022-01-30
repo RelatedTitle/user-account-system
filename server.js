@@ -119,7 +119,7 @@ app.use(function (req, res, next) {
   res.status(404).send({ error: true, message: "Not found." });
 });
 
-app.listen(config.port);
+module.exports = app.listen(config.port);
 
 const download = (url, path, callback) => {
   request.head(url, (error, res, body) => {

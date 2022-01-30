@@ -35,9 +35,13 @@ router.post("/auth/login", check_captcha, (req, res, next) => {
       try {
         await check_user_ip(user, req.ip);
       } catch (error) {
+<<<<<<< HEAD
         return res
           .status(403)
           .json({ error: true, message: user_ip_error.message });
+=======
+        return res.status(403).json({ error: true, message: error.message });
+>>>>>>> efdc5c6e5e68a8f6d1ef80b4fb62efd8e81914e4
       }
       req.login(user, { session: false }, async (error) => {
         if (error) {

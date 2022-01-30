@@ -12,6 +12,9 @@ let transporter = mailer.createTransport({
 });
 
 async function send_new_IP_email(to, new_IP_URL, IP) {
+  if (!config.email.send_email) {
+    return;
+  }
   return await transporter.sendMail({
     from: config.email.from,
     to: to,

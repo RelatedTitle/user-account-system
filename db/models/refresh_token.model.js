@@ -1,5 +1,5 @@
 const { Sequelize, DataTypes } = require("sequelize");
-const sequelize = require("../db_connection");
+const sequelize = require("../db_connection").sequelize;
 
 const refresh_token = sequelize.define("refresh_token", {
   uuid: {
@@ -8,7 +8,7 @@ const refresh_token = sequelize.define("refresh_token", {
     primaryKey: true,
   },
   email: { type: DataTypes.STRING },
-  token: { type: DataTypes.STRING },
+  token: { type: DataTypes.STRING, unique: true },
   expired: { type: DataTypes.BOOLEAN },
   expiry_date: { type: DataTypes.DATE },
   expiry_reason: { type: DataTypes.STRING },

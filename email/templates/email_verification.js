@@ -12,6 +12,9 @@ let transporter = mailer.createTransport({
 });
 
 async function send_email_verification_email(to, email_verification_URL) {
+  if (!config.email.send_email) {
+    return;
+  }
   return await transporter.sendMail({
     from: config.email.from,
     to: to,

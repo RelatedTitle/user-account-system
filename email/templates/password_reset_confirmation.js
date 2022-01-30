@@ -12,6 +12,9 @@ let transporter = mailer.createTransport({
 });
 
 async function send_password_change_confirmation_email(to) {
+  if (!config.email.send_email) {
+    return;
+  }
   return await transporter.sendMail({
     from: config.email.from,
     to: to,

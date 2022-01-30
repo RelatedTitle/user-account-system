@@ -33,7 +33,14 @@ router.post(
         { where: { userid: req.user._id } }
       );
     } catch (error) {
+<<<<<<< HEAD
       return res.status(400).json({ error: true, message: error.message });
+=======
+      return res.status(500).json({
+        error: true,
+        message: "Failed to store avatar url in database.",
+      });
+>>>>>>> efdc5c6e5e68a8f6d1ef80b4fb62efd8e81914e4
     }
     return res
       .status(200)

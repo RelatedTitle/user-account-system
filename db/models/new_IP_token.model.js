@@ -1,5 +1,5 @@
 const { Sequelize, DataTypes } = require("sequelize");
-const sequelize = require("../db_connection");
+const sequelize = require("../db_connection").sequelize;
 
 const new_IP_token = sequelize.define("new_IP_token", {
   uuid: {
@@ -8,7 +8,7 @@ const new_IP_token = sequelize.define("new_IP_token", {
     primaryKey: true,
   },
   ip: { type: DataTypes.STRING },
-  token: { type: DataTypes.STRING },
+  token: { type: DataTypes.STRING, unique: true },
   expired: { type: DataTypes.BOOLEAN },
 });
 
