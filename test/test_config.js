@@ -18,7 +18,7 @@ config.fqdn = "http://localhost"; // Frontend FQDN
 config.backend_fqdn = "http://localhost"; // Backend FQDN
 config.servicename = "RelatedTechNetwork";
 config.usingproxy = config.cloudflare.enabled || false;
-config.port = 80;
+config.port = 8080;
 
 // Rate Limiting:
 
