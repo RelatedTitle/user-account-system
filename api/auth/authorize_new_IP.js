@@ -14,11 +14,7 @@ router.post("/auth/authorize_new_IP", async (req, res) => {
   } catch (error) {
     return res.status(401).json({
       error: true,
-<<<<<<< HEAD
-      message: error.message,
-=======
       message: "Tampered or invalid token.",
->>>>>>> efdc5c6e5e68a8f6d1ef80b4fb62efd8e81914e4
     });
   }
   new_IP

@@ -15,11 +15,7 @@ router.post("/auth/request_password_reset", check_captcha, (req, res) => {
       });
     })
     .catch((error) => {
-<<<<<<< HEAD
-      if (error === "No such user.") {
-=======
       if (error.message === "No such user.") {
->>>>>>> efdc5c6e5e68a8f6d1ef80b4fb62efd8e81914e4
         return res.status(200).json({
           error: false,
           message: "Password reset email sent.",
