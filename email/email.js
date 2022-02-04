@@ -155,14 +155,15 @@ const disposabledomains = JSON.parse(
 );
 
 function get_email_info(user_email) {
-  email = user_email.toLowerCase();
-  domain = email.match(/[^@]*$/g)[0];
+  let email = user_email.toLowerCase();
+  let domain = email.match(/[^@]*$/g)[0];
+  let provider;
+  let type;
 
   // Cover your eyes on this one, trust me. Idk how to make it better since I can't really use switches in this case. I have an idea but it means I have to organize the provider list in a different way and I'm too lazy to do that.
   if (gmaildomains.includes(domain)) {
     provider = "Gmail";
     type = 1;
-    realemail = sanitize(email, domain);
   } else if (microsoftdomains.includes(domain)) {
     provider = "Microsoft";
     type = 1;
@@ -195,14 +196,14 @@ function get_email_info(user_email) {
     type = 0;
   }
 
-  realemail = sanitize(email, domain, provider);
+  let real_email = sanitize(email, domain, provider);
 
-  return { type, provider, domain, realemail };
+  return { type, provider, domain, real_email };
 }
 
 // Function to sanitize gmail emails to prevent duplicates, tomato+avocado@gmail.com and t.o.m.a.t.o@googlemail.com are the same. tomato@protonmail.com and tomato@pm.me are also the same.
 function sanitize(email, domain, provider) {
-  email_username = email.replace(domain, "");
+  let email_username = email.replace(domain, "");
   let sanitized_email;
 
   switch (provider) {

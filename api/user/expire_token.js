@@ -1,6 +1,5 @@
 const router = require("express").Router();
 
-const config = require("../../config.js");
 const passport = require("passport");
 const auth_token = require("../../auth/tokens.js");
 
@@ -10,7 +9,7 @@ router.post(
   async (req, res, next) => {
     // If all tokens should be expired
     if (req.body.expire_all) {
-      exclude_tokens = [];
+      var exclude_tokens = [];
       if (req.body.exclude_current) {
         exclude_tokens.push(req.user.refresh_token);
       }

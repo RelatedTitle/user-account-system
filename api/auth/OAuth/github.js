@@ -15,21 +15,22 @@ router.get(
   "/auth/github/callback",
   passport.authenticate("github", { failWithError: true, session: false }),
   (req, res) => {
-    auth_token
-      .issue_refresh_jwt(req.user.userid, req.user.email)
-      .then((tokens) => {
-        return res.json({
-          error: false,
-          access_token: tokens.access_token,
-          refresh_token: tokens.refresh_token,
-        });
-      })
-      .catch((error) => {
-        return res.json({
-          error: true,
-          message: error.message,
-        });
+    try {
+      var tokens = auth_token.issue_refresh_jwt(
+        req.user.userid,
+        req.user.email.email
+      );
+    } catch (error) {
+      return res.json({
+        error: true,
+        message: error.message,
       });
+    }
+    return res.json({
+      error: false,
+      access_token: tokens.access_token,
+      refresh_token: tokens.refresh_token,
+    });
   }
 );
 

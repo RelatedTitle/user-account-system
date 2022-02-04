@@ -61,7 +61,7 @@ describe("POST /auth/register", () => {
       return new Promise(async (resolve, reject) => {
         let user = {
           username: valid_username(),
-          email: email.get_email_info(faker.internet.email()).realemail,
+          email: email.get_email_info(faker.internet.email()).real_email,
           password: faker.internet.password(8, false, undefined, "aA1"),
           "h-captcha-response": valid_hcaptcha_response,
         };
@@ -128,7 +128,7 @@ describe("POST /auth/register", () => {
       return new Promise(async (resolve, reject) => {
         let user = {
           username: "@",
-          email: email.get_email_info(faker.internet.email()).realemail,
+          email: email.get_email_info(faker.internet.email()).real_email,
           password: faker.internet.password(8, false, undefined, "aA1"),
           "h-captcha-response": valid_hcaptcha_response,
         };
@@ -182,7 +182,7 @@ describe("POST /auth/register", () => {
       return new Promise(async (resolve, reject) => {
         let user = {
           username: valid_username(),
-          email: email.get_email_info(faker.internet.email()).realemail,
+          email: email.get_email_info(faker.internet.email()).real_email,
           password: "a",
           "h-captcha-response": valid_hcaptcha_response,
         };
@@ -209,7 +209,7 @@ describe("POST /auth/register", () => {
       return new Promise(async (resolve, reject) => {
         let user = {
           username: valid_username(),
-          email: email.get_email_info(faker.internet.email()).realemail,
+          email: email.get_email_info(faker.internet.email()).real_email,
           password: faker.internet.password(8, false, undefined, "aA1"),
           "h-captcha-response": "a",
         };
@@ -236,7 +236,7 @@ describe("POST /auth/register", () => {
       return new Promise(async (resolve, reject) => {
         let user = {
           username: "tester",
-          email: email.get_email_info(faker.internet.email()).realemail,
+          email: email.get_email_info(faker.internet.email()).real_email,
           password: faker.internet.password(8, false, undefined, "aA1"),
           "h-captcha-response": valid_hcaptcha_response,
         };

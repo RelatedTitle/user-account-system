@@ -19,13 +19,12 @@ if (config.user.facebook_client_id && config.user.facebook_client_secret) {
         profileFields: ["id", "emails", "name"],
       },
       async function (request, access_token, refresh_token, profile, done) {
-        oauth(request, profile, "Facebook")
-          .then((user) => {
-            return done(null, user);
-          })
-          .catch((error) => {
-            return done(error, null);
-          });
+        try {
+          var user = oauth(request, profile, "Facebook");
+        } catch (error) {
+          return done(error, null);
+        }
+        return done(null, user);
       }
     )
   );

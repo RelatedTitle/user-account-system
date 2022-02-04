@@ -10,7 +10,7 @@ router.post(
   async (req, res, next) => {
     // Get user
     try {
-      user = await db.user.findOne({ where: { userid: req.user._id } });
+      var user = await db.user.findOne({ where: { userid: req.user._id } });
     } catch (error) {
       return res.status(500).json({
         error: true,

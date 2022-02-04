@@ -471,7 +471,7 @@ describe("POST /auth/login", () => {
       return new Promise(async (resolve, reject) => {
         chai
           .request(server)
-          .post("/auth/register")
+          .post("/auth/login")
           .send({
             email: this.credentials[0].email,
             password: this.credentials[0].password,

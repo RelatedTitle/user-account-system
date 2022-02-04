@@ -13,7 +13,7 @@ router.post("/auth/reset_password", async (req, res) => {
   }
   // Verify and decode the password reset token.
   try {
-    verified_token = jwt.verify(
+    var verified_token = jwt.verify(
       req.body.password_reset_token,
       config.user.jwt_password_reset_secret
     );

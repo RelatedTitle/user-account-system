@@ -1,11 +1,7 @@
-// TODO:
-// Add different options for uploading avatars. S3, local, new Cloudflare images thingy, etc.
-
 const router = require("express").Router();
 
 const db = require("../../db/db.js");
 const passport = require("passport");
-const config = require("../../config.js");
 const multer = require("multer");
 
 const avatar = require("../../util/avatar.js");

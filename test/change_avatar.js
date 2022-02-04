@@ -28,7 +28,7 @@ describe("POST /user/change_avatar", () => {
       // Create a user to test with
       await register
         .register_user(
-          email.get_email_info(faker.internet.email()).realemail,
+          email.get_email_info(faker.internet.email()).real_email,
           "tester",
           (user1_password = faker.internet.password(
             8,
@@ -50,7 +50,7 @@ describe("POST /user/change_avatar", () => {
         });
       this.user.new_email = email.get_email_info(
         faker.internet.email()
-      ).realemail;
+      ).real_email;
       // Issue access and refresh tokens for user 1
       await auth_token
         .issue_refresh_jwt(this.user.userid, this.user.email)

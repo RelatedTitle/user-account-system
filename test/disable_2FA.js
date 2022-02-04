@@ -27,7 +27,7 @@ describe("POST /user/disable_2FA", () => {
       // Create a user to test with
       await register
         .register_user(
-          email.get_email_info(faker.internet.email()).realemail,
+          email.get_email_info(faker.internet.email()).real_email,
           "tester",
           (user1_password = faker.internet.password(
             8,
@@ -49,7 +49,7 @@ describe("POST /user/disable_2FA", () => {
         });
       this.user.new_email = email.get_email_info(
         faker.internet.email()
-      ).realemail;
+      ).real_email;
       // Add 2FA secret to user (but don't activate it)
       secret = otp.authenticator.generateSecret(); // Generate a secret
       this.user.totp_secret = secret;
@@ -77,7 +77,7 @@ describe("POST /user/disable_2FA", () => {
       // Create another user to test with
       await register
         .register_user(
-          email.get_email_info(faker.internet.email()).realemail,
+          email.get_email_info(faker.internet.email()).real_email,
           "tester2",
           (user1_password = faker.internet.password(
             8,

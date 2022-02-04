@@ -16,13 +16,12 @@ if (config.user.google_client_id && config.user.google_client_secret) {
         passReqToCallback: true,
       },
       async function (request, access_token, refresh_token, profile, done) {
-        oauth(request, profile, "Google")
-          .then((user) => {
-            return done(null, user);
-          })
-          .catch((error) => {
-            return done(error, null);
-          });
+        try {
+          var user = oauth(request, profile, "Google");
+        } catch (error) {
+          return done(error, null);
+        }
+        return done(null, user);
       }
     )
   );

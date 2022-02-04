@@ -44,25 +44,26 @@ async function check_captcha(req, res, next) {
         message: "hCaptcha is not enabled.",
       });
     }
-    hcaptcha
-      .verify(config.hcaptcha.secret, captcha_response)
-      .then((data) => {
-        if (data.success) {
-          // If the captcha is valid, continue.
-          return next();
-        }
-        // Captcha is invalid.
-        return res.status(409).json({
-          error: true,
-          message: "CAPTCHA Incorrect.",
-        });
-      })
-      .catch((error) => {
-        return res.status(500).json({
-          error: true,
-          message: error.message,
-        });
+    try {
+      var hcaptcha_data = await hcaptcha.verify(
+        config.hcaptcha.secret,
+        captcha_response
+      );
+    } catch (error) {
+      return res.status(500).json({
+        error: true,
+        message: error.message,
       });
+    }
+    if (hcaptcha_data.success) {
+      // If the captcha is valid, continue.
+      return next();
+    }
+    // Captcha is invalid.
+    return res.status(409).json({
+      error: true,
+      message: "CAPTCHA Incorrect.",
+    });
   }
 
   if (captcha_type === "recaptcha") {
@@ -72,25 +73,27 @@ async function check_captcha(req, res, next) {
         message: "reCAPTCHA is not enabled.",
       });
     }
-    recaptcha
-      .verify(config.recaptcha.secret, captcha_response)
-      .then((data) => {
-        if (data.success) {
-          // If the captcha is valid, continue.
-          return next();
-        }
-        // Captcha is invalid.
-        return res.status(409).json({
-          error: true,
-          message: "CAPTCHA Incorrect.",
-        });
-      })
-      .catch((error) => {
-        return res.status(500).json({
-          error: true,
-          message: "CAPTCHA Error.",
-        });
+    try {
+      var recaptcha_data = await recaptcha.verify(
+        config.recaptcha.secret,
+        captcha_response
+      );
+    } catch (error) {
+      return res.status(500).json({
+        error: true,
+        message: "CAPTCHA Error.",
       });
+    }
+
+    if (recaptcha_data.success) {
+      // If the captcha is valid, continue.
+      return next();
+    }
+    // Captcha is invalid.
+    return res.status(409).json({
+      error: true,
+      message: "CAPTCHA Incorrect.",
+    });
   }
 }
 

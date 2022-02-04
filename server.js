@@ -1,28 +1,9 @@
-// Add trust for each completed captcha.
-// Add/Remove trust depending on IP provider. (Geniune ISP, Cloud Provider (Could Be used for bots), VPN, TOR, etc.)
-// Add confirmed residential IP or other
-// Add trust depending on user acc (Personal, Premium, Enterprise)
-// Add/Remove trust depending on email acc (Depending on provider and their difficulty to get an account on, disposable, etc)
-// Add/Remove trust depending on their contributions or bans/punishments.
-// Remove trust depending on the # malicious links they have posted
-// Ability to manually add score/verify users.
-// Add trust when a user verifies their email.
-// Add trust depending on how human their actions are, things bots wouldn't do and depending on their user agent/etc.
-// Require captchas for certain actions depending on a user's trust score.
-// Disallow certain actions (like forum, etc) depending on a user's trust score.
-// Sort the approval queue by people with higher trust scores.
-
-// JWT Login based on https://www.youtube.com/watch?v=EcCIlxfxc4g
-// Passport Registration based on Web Dev Simplified's video.
-
 if (process.env.NODE_ENV !== "production") {
   require("dotenv").config();
 }
 
 const config = require("./config.js");
 
-const request = require("request");
-const fs = require("fs");
 const express = require("express");
 const passport = require("passport");
 const methodOverride = require("method-override");
@@ -120,20 +101,3 @@ app.use(function (req, res, next) {
 });
 
 module.exports = app.listen(config.port);
-
-const download = (url, path, callback) => {
-  request.head(url, (error, res, body) => {
-    request(url).pipe(fs.createWriteStream(path)).on("close", callback);
-  });
-};
-
-function updatedisposable() {
-  download(
-    "https://raw.githubusercontent.com/amieiro/disposable-email-domains/master/denyDomains.json",
-    "email/disposabledomains.json",
-    () => {
-      // Downloads a disposable email domain list.
-      console.log("Downloaded updated disposable email domain list");
-    }
-  );
-}

@@ -19,8 +19,8 @@ router.post(
     }
     // Make sure the email is not already in use
     try {
-      user = await db.user.findOne({
-        where: { email: email.get_email_info(req.body.email).realemail },
+      var user = await db.user.findOne({
+        where: { email: email.get_email_info(req.body.email).real_email },
       });
     } catch (error) {
       return res.status(500).json({
@@ -44,17 +44,19 @@ router.post(
       });
     }
     // Generate email verification token for the new email address
-    email_verification
-      .generate_email_verification_token(req.user._id, req.body.email)
-      .then((email_verification_token) => {
-        res.status(200).json({
-          error: false,
-          message: "Email verification sent successfully.",
-        });
-      })
-      .catch((error) => {
-        return res.status(400).json({ error: true, message: error.message });
-      });
+    try {
+      await email_verification.generate_email_verification_token(
+        req.user._id,
+        req.body.email
+      );
+    } catch (error) {
+      return res.status(400).json({ error: true, message: error.message });
+    }
+
+    res.status(200).json({
+      error: false,
+      message: "Email verification sent successfully.",
+    });
   }
 );
 

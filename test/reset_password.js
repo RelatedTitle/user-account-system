@@ -33,7 +33,7 @@ describe("POST /auth/reset_password", () => {
       user1_password = faker.internet.password(8, false, undefined, "aA1");
       await register
         .register_user(
-          email.get_email_info(faker.internet.email()).realemail,
+          email.get_email_info(faker.internet.email()).real_email,
           "tester",
           user1_password,
           null,
@@ -73,7 +73,7 @@ describe("POST /auth/reset_password", () => {
       // Create another user to test with
       await register
         .register_user(
-          email.get_email_info(faker.internet.email()).realemail,
+          email.get_email_info(faker.internet.email()).real_email,
           "tester2",
           user2_password,
           null,

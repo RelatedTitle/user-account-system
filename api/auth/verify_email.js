@@ -9,7 +9,7 @@ router.post(
   async (req, res) => {
     // Verify and decode the email verification token.
     try {
-      verified_token = jwt.verify(
+      var verified_token = jwt.verify(
         req.body.email_verification_token,
         config.user.jwt_email_verification_secret
       );

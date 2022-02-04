@@ -29,7 +29,7 @@ describe("POST /auth/refresh_token", () => {
       // Create a user to test with
       await register
         .register_user(
-          email.get_email_info(faker.internet.email()).realemail,
+          email.get_email_info(faker.internet.email()).real_email,
           "tester",
           faker.internet.password(8, false, undefined, "aA1"),
           null,
@@ -47,7 +47,7 @@ describe("POST /auth/refresh_token", () => {
       // Create another user to test with
       await register
         .register_user(
-          email.get_email_info(faker.internet.email()).realemail,
+          email.get_email_info(faker.internet.email()).real_email,
           "tester2",
           faker.internet.password(8, false, undefined, "aA1"),
           null,

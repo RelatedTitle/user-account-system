@@ -17,13 +17,12 @@ if (config.user.discord_client_id && config.user.discord_client_secret) {
         scope: ["identify", "email"],
       },
       async function (request, access_token, refresh_token, profile, done) {
-        oauth(request, profile, "Discord")
-          .then((user) => {
-            return done(null, user);
-          })
-          .catch((error) => {
-            return done(error, null);
-          });
+        try {
+          var user = oauth(request, profile, "Discord");
+        } catch (error) {
+          return done(error, null);
+        }
+        return done(null, user);
       }
     )
   );

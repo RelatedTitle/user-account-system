@@ -27,7 +27,7 @@ describe("POST /user/request_2FA_secret", () => {
       // Create a user to test with
       await register
         .register_user(
-          email.get_email_info(faker.internet.email()).realemail,
+          email.get_email_info(faker.internet.email()).real_email,
           "tester",
           (user1_password = faker.internet.password(
             8,
@@ -49,7 +49,7 @@ describe("POST /user/request_2FA_secret", () => {
         });
       this.user.new_email = email.get_email_info(
         faker.internet.email()
-      ).realemail;
+      ).real_email;
       // Issue access and refresh tokens for user 1
       await auth_token
         .issue_refresh_jwt(this.user.userid, this.user.email)
@@ -67,7 +67,7 @@ describe("POST /user/request_2FA_secret", () => {
       // Create another user to test with
       await register
         .register_user(
-          email.get_email_info(faker.internet.email()).realemail,
+          email.get_email_info(faker.internet.email()).real_email,
           "tester2",
           (user1_password = faker.internet.password(
             8,

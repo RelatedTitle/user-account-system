@@ -26,7 +26,7 @@ router.post(
     }
     // Get user.
     try {
-      user = await db.user.findOne({ where: { userid: req.user._id } });
+      var user = await db.user.findOne({ where: { userid: req.user._id } });
     } catch (error) {
       // Error finding user.
       return res.status(500).json({
@@ -36,7 +36,7 @@ router.post(
     }
     // Check if the old password is correct.
     try {
-      results = await bcrypt.compare(req.body.old_password, user.password);
+      var results = await bcrypt.compare(req.body.old_password, user.password);
     } catch (error) {
       return res.status(500).json({
         error: true,
@@ -53,7 +53,7 @@ router.post(
     // If the old password is correct, update the password.
     // Generate salt.
     try {
-      salt = await bcrypt.genSalt(config.user.bcrypt_salt_rounds);
+      var salt = await bcrypt.genSalt(config.user.bcrypt_salt_rounds);
     } catch (error) {
       // Error generating salt.
       return res.status(500).json({
@@ -63,7 +63,7 @@ router.post(
     }
     // Hash password:
     try {
-      hashed_password = await bcrypt.hash(req.body.new_password, salt);
+      var hashed_password = await bcrypt.hash(req.body.new_password, salt);
     } catch (error) {
       // Error hashing password.
       return res.status(500).json({

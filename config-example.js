@@ -7,8 +7,9 @@ config.email = {};
 
 // General:
 
-config.fqdn = "http://localhost"; // Change this
-config.servicename = "User Account System"; // Change this
+config.fqdn = "http://localhost";
+config.backend_fqdn = "https://api.relatedtechnetwork.com";
+config.servicename = "User Account System";
 config.usingproxy = false;
 config.port = 80;
 
@@ -30,15 +31,15 @@ config.ratelimits[1] = {
 
 // CAPTCHA:
 
-config.captcha_secret_bypass_key_enabled = true;
+config.captcha_secret_bypass_key_enabled = false;
 config.captcha_secret_bypass_key = "";
 
 config.hcaptcha = {};
-config.hcaptcha.enabled = true;
+config.hcaptcha.enabled = false;
 config.hcaptcha.secret = "";
 
 config.recaptcha = {};
-config.recaptcha.enabled = true;
+config.recaptcha.enabled = false;
 config.recaptcha.secret = "";
 
 // DB

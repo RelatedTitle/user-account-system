@@ -2,7 +2,6 @@ const db = require("../db/db.js");
 const passport = require("passport");
 const bcrypt = require("bcrypt");
 const config = require("../config.js");
-const register = require("./register.js");
 const email = require("../email/email.js");
 
 const localStrategy = require("passport-local").Strategy;
@@ -29,7 +28,7 @@ passport.use(
       try {
         let current_user = await db.user.findOne({
           where: {
-            email: email.get_email_info(user_email).realemail,
+            email: email.get_email_info(user_email).real_email,
           },
         });
         if (!current_user) {
@@ -79,7 +78,7 @@ passport.use(
             );
           }
           // Access token is valid.
-          user = token.user;
+          let user = token.user;
           user.refresh_token = token.refresh_token;
           return done(null, user);
         }

@@ -16,13 +16,12 @@ if (config.user.github_client_id && config.user.github_client_secret) {
         passReqToCallback: true,
       },
       async function (request, access_token, refresh_token, profile, done) {
-        oauth(request, profile, "GitHub")
-          .then((user) => {
-            return done(null, user);
-          })
-          .catch((error) => {
-            return done(error, null);
-          });
+        try {
+          var user = oauth(request, profile, "GitHub");
+        } catch (error) {
+          return done(error, null);
+        }
+        return done(null, user);
       }
     )
   );

@@ -28,7 +28,7 @@ describe("POST /auth/verify_email", () => {
       // Create a user to test with
       await register
         .register_user(
-          email.get_email_info(faker.internet.email()).realemail,
+          email.get_email_info(faker.internet.email()).real_email,
           "tester",
           (user1_password = faker.internet.password(
             8,
@@ -64,7 +64,7 @@ describe("POST /auth/verify_email", () => {
       // Create another user to test with
       await register
         .register_user(
-          email.get_email_info(faker.internet.email()).realemail,
+          email.get_email_info(faker.internet.email()).real_email,
           "tester2",
           (user1_password = faker.internet.password(
             8,
