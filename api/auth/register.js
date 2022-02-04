@@ -45,7 +45,6 @@ router.post("/auth/register", check_captcha, async (req, res) => {
       req.ip // No need to worry about x-forwarded-for since express will use that automatically when behind a proxy. (As long as config.usingproxy is set to true)
     );
   } catch (error) {
-    console.log(error);
     // Check what the error is and respond accordingly
     switch (error.message) {
       case "Username already in use.":
