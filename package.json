@@ -39,7 +39,7 @@
     "pg": "^8.7.1",
     "request": "^2.88.2",
     "sequelize": "^6.6.5",
-    "sharp": "^0.30.0",
+    "sharp": "^0.30.5",
     "yargs": "^16.2.0"
   },
   "devDependencies": {
